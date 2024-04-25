@@ -1,0 +1,25 @@
+.crud20-top-nav {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+}
+
+.crud20-top-nav-item {
+    display: flex;
+    align-items: center;
+    padding-left: var(--lumo-space-m);
+    padding-right: var(--lumo-space-m);
+    color: var(--lumo-secondary-text-color);
+    font-weight: bolder;
+    text-decoration: none;
+}
+
+.crud20-top-nav-item[highlight] {
+    background: var(--lumo-contrast-20pct);
+    color: var(--lumo-body-text-color);
+}
+
+.crud20-top-nav-item:hover {
+    background: var(--lumo-contrast-10pct);
+    text-decoration: none;
+}
