@@ -6,7 +6,6 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import jakarta.annotation.Nonnull;
 
-@CssImport("./crud20-styles/top-nav.css")
 public class TopNav extends Composite<Div> implements HasSize {
 
     public TopNav() {

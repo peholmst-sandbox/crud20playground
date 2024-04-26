@@ -13,7 +13,7 @@ public class ContentContainer extends Composite<FlexLayout> implements HasSize {
 
     private final LazyComponent<Div> headerDiv = new LazyComponent<>(this::createHeaderDiv, getContent()::addComponentAsFirst);
     private final Div contentDiv;
-    private final LazyComponent<Div> footerDiv = new LazyComponent<>(this::createFooterDiv, getContent()::add);
+    private final LazyComponent<FlexLayout> footerDiv = new LazyComponent<>(this::createFooterDiv, getContent()::add);
 
     // TODO Add styles
 
@@ -21,7 +21,6 @@ public class ContentContainer extends Composite<FlexLayout> implements HasSize {
         addClassName("crud2-content-container");
         contentDiv = new Div();
         contentDiv.addClassName("crud2-content-container-content");
-        // TODO Make content scrollable
 
         getContent().setFlexDirection(FlexLayout.FlexDirection.COLUMN);
         getContent().add(contentDiv);
@@ -30,13 +29,18 @@ public class ContentContainer extends Composite<FlexLayout> implements HasSize {
 
     private Div createHeaderDiv() {
         var header = new Div();
+        header.setWidthFull();
         header.addClassName("crud2-content-container-header");
 
         return header;
     }
 
-    private Div createFooterDiv() {
-        throw new UnsupportedOperationException("Not implemented yet");
+    private FlexLayout createFooterDiv() {
+        var footer = new FlexLayout();
+        footer.setWidthFull();
+        footer.addClassName("crud2-content-container-footer");
+
+        return footer;
     }
 
     public final void setHeader(@Nullable Component header) {

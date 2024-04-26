@@ -9,7 +9,6 @@ import com.vaadin.flow.component.shared.HasThemeVariant;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-@CssImport("./crud20-styles/toolbar.css")
 public class Toolbar extends Composite<Div> implements HasThemeVariant<ToolbarVariant>, HasSize {
 
     private Component title;
