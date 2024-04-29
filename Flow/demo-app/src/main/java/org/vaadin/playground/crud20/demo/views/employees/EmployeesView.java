@@ -109,6 +109,7 @@ public class EmployeesView extends MasterDetailLayout {
         detail.setContent(buildPersonalInfo());
 
         HorizontalLayout detailFooter = new HorizontalLayout();
+        detailFooter.addClassName(LumoUtility.Gap.SMALL);
         Button edit = new Button("Edit");
         Button share = new Button("Share");
         Button delete = new Button("Delete");
@@ -136,6 +137,8 @@ public class EmployeesView extends MasterDetailLayout {
         summaryContent.setWidth(300, Unit.PIXELS);
         H4 summaryTitle = new H4("Summary");
         summaryTitle.addClassName(LumoUtility.Margin.Bottom.LARGE);
+        H4 managerTitle= new H4("Manager");
+        HorizontalLayout manager = createEmployeeItem("Esther Howard", "Software Development Manager", "images/avatars/esther_howard.jpg");
         summaryContent.add(
                 summaryTitle,
                 createTextItem(LineAwesomeIcon.PHONE_SOLID, "+358 12 345 6789"),
@@ -147,7 +150,9 @@ public class EmployeesView extends MasterDetailLayout {
                 createTextItem(LineAwesomeIcon.BRIEFCASE_SOLID, "Full-Time"),
                 createTextItem(LineAwesomeIcon.USER_CIRCLE_SOLID, "Research and Development (R&D)"),
                 createTextItem(LineAwesomeIcon.CLOCK_SOLID, "6:32 PM local time"),
-                createDivider()
+                createDivider(),
+                managerTitle,
+                manager
         );
         summary.setContent(summaryContent);
 
@@ -251,29 +256,36 @@ public class EmployeesView extends MasterDetailLayout {
                 }
         );
     }
+
+    private HorizontalLayout createEmployeeItem(String name, String role, String avatarImageUrl) {
+        Avatar avatar = new Avatar(name);
+        avatar.setImage(avatarImageUrl);
+        HorizontalLayout employeeItem = new HorizontalLayout();
+        employeeItem.setAlignItems(Alignment.CENTER);
+        employeeItem.addClassNames(LumoUtility.Padding.Vertical.SMALL, LumoUtility.Gap.SMALL);
+
+        VerticalLayout details = new VerticalLayout();
+        details.addClassName(LumoUtility.Gap.XSMALL);
+        details.setSpacing(false);
+        details.setPadding(false);
+        Span nameComponent = new Span(name);
+        nameComponent.addClassNames(LumoUtility.LineHeight.NONE, LumoUtility.FontWeight.MEDIUM);
+        Span roleComponent = new Span(role);
+        roleComponent.addClassNames(LumoUtility.LineHeight.NONE, LumoUtility.FontSize.XSMALL, LumoUtility.TextColor.SECONDARY);
+
+        details.add(nameComponent, roleComponent);
+
+        employeeItem.add(avatar, details);
+
+        return employeeItem;
+    }
     private ComponentRenderer<Component, Employee> employeeCardRenderer = new ComponentRenderer<>(
             employee -> {
-                String avatarUrl = "images/avatars/" + employee.getProfilePicUrl();
-                Avatar avatar = new Avatar(employee.getName());
-                avatar.setImage(avatarUrl);
-                HorizontalLayout listItem = new HorizontalLayout();
-                listItem.setAlignItems(Alignment.CENTER);
-                listItem.addClassNames(LumoUtility.Border.BOTTOM, LumoUtility.Padding.Vertical.SMALL, LumoUtility.Padding.Horizontal.MEDIUM, LumoUtility.Gap.SMALL);
-
-                VerticalLayout details = new VerticalLayout();
-                details.addClassName(LumoUtility.Gap.XSMALL);
-                details.setSpacing(false);
-                details.setPadding(false);
-                Span name = new Span(employee.getName());
-                name.addClassNames(LumoUtility.LineHeight.NONE, LumoUtility.FontWeight.MEDIUM);
-                Span role = new Span(employee.getRole());
-                role.addClassNames(LumoUtility.LineHeight.NONE, LumoUtility.FontSize.XSMALL, LumoUtility.TextColor.SECONDARY);
-
-                details.add(name, role);
-
-                listItem.add(avatar, details);
-
-                return listItem;
+                HorizontalLayout employeeItem = createEmployeeItem(employee.getName(), employee.getRole(), "images/avatars/" + employee.getProfilePicUrl());
+                employeeItem.addClassNames(LumoUtility.Border.BOTTOM, LumoUtility.Padding.Horizontal.MEDIUM);
+                return employeeItem;
             }
     );
+
+
 }
