@@ -12,7 +12,6 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.SvgIcon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
@@ -29,6 +28,9 @@ import org.vaadin.playground.crud20.components.MasterDetailLayout;
 import org.vaadin.playground.crud20.demo.views.MainLayout;
 import org.vaadin.playground.crud20.sampledata.Employee;
 import org.vaadin.lineawesome.LineAwesomeIcon;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 
 @Route(value = "employees", layout = MainLayout.class)
@@ -79,6 +81,7 @@ public class EmployeesView extends MasterDetailLayout {
         Avatar employeeAvatar = new Avatar();
         employeeAvatar.setWidth(60, Unit.PIXELS);
         employeeAvatar.setHeight(60, Unit.PIXELS);
+        employeeAvatar.setImage("images/avatars/cody_fisher.jpg");
         H3 employeeTitle = new H3("Cody Fisher");
         Span employeeRole = new Span("Scrum Master");
         VerticalLayout employeeDetailsWrapper = new VerticalLayout(employeeTitle, employeeRole);
@@ -165,9 +168,11 @@ public class EmployeesView extends MasterDetailLayout {
         TextField middleName = new TextField("Middle Name", "", "");
         TextField lastName = new TextField("Last name","Fisher", "");
         TextField preferredName = new TextField("Preferred Name","Cody", "");
-        DatePicker birthDate = new DatePicker("Birth Date");
-        ComboBox gender = new ComboBox("Preferred Name");
-        TextArea dietaryNotes = new TextArea("Dietary Notes");
+        DatePicker birthDate = new DatePicker("Birth Date", LocalDate.now(ZoneId.systemDefault()));
+        ComboBox gender = new ComboBox<>("Gender");
+        gender.setItems("Male", "Female");
+        gender.setValue("Male");
+        TextArea dietaryNotes = new TextArea("Dietary Notes", "Embracing a flexible approach to eating, with a focus on plant-based meals while occasionally enjoying meat and seafood. No known allergies.", "");
         Hr basicInfoDivider = createDivider();
         personalInfoForm.add(basicInfo, firstName, middleName, lastName, preferredName, birthDate, gender, dietaryNotes, basicInfoDivider);
         personalInfoForm.setColspan(basicInfo, 4);
@@ -201,6 +206,8 @@ public class EmployeesView extends MasterDetailLayout {
         personalInfoForm.setColspan(slack, 4);
         personalInfoForm.setColspan(github, 4);
         personalInfoForm.setColspan(contactDivider, 4);
+
+        /* Make everything readonly */
         setFormFieldsReadOnly(personalInfoForm);
 
         formWrapper.setContent(personalInfoForm);
@@ -218,6 +225,8 @@ public class EmployeesView extends MasterDetailLayout {
 
     private HorizontalLayout createTextItem(LineAwesomeIcon icon, String text) {
         HorizontalLayout textItem = new HorizontalLayout();
+        textItem.setSpacing(false);
+        textItem.addClassNames(LumoUtility.Gap.SMALL);
         Span textComponent = new Span(text);
         textComponent.addClassNames(LumoUtility.TextColor.TERTIARY, LumoUtility.FontSize.SMALL);
         SvgIcon iconComponent = icon.create();
@@ -244,17 +253,26 @@ public class EmployeesView extends MasterDetailLayout {
     }
     private ComponentRenderer<Component, Employee> employeeCardRenderer = new ComponentRenderer<>(
             employee -> {
-                VerticalLayout listItem = new VerticalLayout();
-                listItem.setSpacing(false);
-                listItem.setPadding(false);
-                listItem.addClassNames(LumoUtility.Border.BOTTOM, LumoUtility.Padding.Vertical.SMALL, LumoUtility.Padding.Horizontal.MEDIUM);
+                String avatarUrl = "images/avatars/" + employee.getProfilePicUrl();
+                Avatar avatar = new Avatar(employee.getName());
+                avatar.setImage(avatarUrl);
+                HorizontalLayout listItem = new HorizontalLayout();
+                listItem.setAlignItems(Alignment.CENTER);
+                listItem.addClassNames(LumoUtility.Border.BOTTOM, LumoUtility.Padding.Vertical.SMALL, LumoUtility.Padding.Horizontal.MEDIUM, LumoUtility.Gap.SMALL);
 
+                VerticalLayout details = new VerticalLayout();
+                details.addClassName(LumoUtility.Gap.XSMALL);
+                details.setSpacing(false);
+                details.setPadding(false);
                 Span name = new Span(employee.getName());
-                name.addClassNames(LumoUtility.FontWeight.MEDIUM);
+                name.addClassNames(LumoUtility.LineHeight.NONE, LumoUtility.FontWeight.MEDIUM);
                 Span role = new Span(employee.getRole());
-                role.addClassNames(LumoUtility.FontSize.XSMALL);
+                role.addClassNames(LumoUtility.LineHeight.NONE, LumoUtility.FontSize.XSMALL, LumoUtility.TextColor.SECONDARY);
 
-                listItem.add(name, role);
+                details.add(name, role);
+
+                listItem.add(avatar, details);
+
                 return listItem;
             }
     );
