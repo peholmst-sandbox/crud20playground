@@ -1,0 +1,18 @@
+[theme~="read-only-text-style"]:where(vaadin-combo-box, vaadin-date-picker, vaadin-date-time-picker, vaadin-email-field, vaadin-number-field, vaadin-password-field, vaadin-select, vaadin-multi-select-combo-box, vaadin-text-area, vaadin-text-field, vaadin-time-picker, vaadin-integer-field) {
+    --vaadin-input-field-readonly-border: none;
+    --vaadin-input-field-readonly-border: none;
+}
+
+[theme~="read-only-text-style"]:where(vaadin-combo-box, vaadin-date-picker, vaadin-date-time-picker, vaadin-email-field, vaadin-number-field, vaadin-password-field, vaadin-select, vaadin-multi-select-combo-box, vaadin-text-area, vaadin-text-field, vaadin-time-picker, vaadin-integer-field)::part(input-field) {
+    padding: 0;
+    border: 0;
+    color: var(--lumo-body-text-color);
+}
+
+[theme~="read-only-text-style"] :where([slot="input"], [slot="textarea"]) {
+    padding: 0;
+}
+
+[theme~="read-only-text-style"]::part(toggle-button) {
+    display: none;
+}

@@ -1,6 +1,8 @@
 package org.vaadin.playground.crud20.demo.views.employees;
 
+import com.vaadin.flow.component.AbstractSinglePropertyField;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasTheme;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
@@ -17,6 +19,7 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.TextFieldBase;
 import com.vaadin.flow.component.virtuallist.VirtualList;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
@@ -145,8 +148,8 @@ public class EmployeesView extends MasterDetailLayout {
         );
         summary.setContent(summaryContent);
 
-        ContentContainer form = new ContentContainer();
-        form.addClassName(LumoUtility.Border.LEFT);
+        ContentContainer formWrapper = new ContentContainer();
+        formWrapper.addClassName(LumoUtility.Border.LEFT);
 
         FormLayout personalInfoForm = new FormLayout();
         personalInfoForm.addClassNames(LumoUtility.Padding.MEDIUM);
@@ -198,10 +201,11 @@ public class EmployeesView extends MasterDetailLayout {
         personalInfoForm.setColspan(slack, 4);
         personalInfoForm.setColspan(github, 4);
         personalInfoForm.setColspan(contactDivider, 4);
+        setFormFieldsReadOnly(personalInfoForm);
 
-        form.setContent(personalInfoForm);
+        formWrapper.setContent(personalInfoForm);
 
-        personalInfo.add(summary, form);
+        personalInfo.add(summary, formWrapper);
 
         return personalInfo;
     }
@@ -219,6 +223,24 @@ public class EmployeesView extends MasterDetailLayout {
         SvgIcon iconComponent = icon.create();
         textItem.add(iconComponent, textComponent);
         return textItem;
+    }
+
+    /* Make form fields look like text */
+    private void setFormFieldsReadOnly(Component form) {
+        form.getChildren().forEach(
+                component -> {
+                    if(component instanceof TextFieldBase) {
+                        ((TextFieldBase) component).setReadOnly(true);
+                        ((HasTheme) component).addThemeName("read-only-text-style");
+                    }
+
+                    else if(component instanceof AbstractSinglePropertyField) {
+                        ((AbstractSinglePropertyField) component).setReadOnly(true);
+                        ((HasTheme) component).addThemeName("read-only-text-style");
+                    }
+
+                }
+        );
     }
     private ComponentRenderer<Component, Employee> employeeCardRenderer = new ComponentRenderer<>(
             employee -> {
