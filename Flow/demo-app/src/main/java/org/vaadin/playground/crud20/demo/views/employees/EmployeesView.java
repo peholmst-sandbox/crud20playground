@@ -4,7 +4,6 @@ import com.vaadin.flow.component.AbstractSinglePropertyField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasTheme;
 import com.vaadin.flow.component.Unit;
-import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -29,6 +28,8 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 import org.vaadin.playground.crud20.components.ContentContainer;
 import org.vaadin.playground.crud20.components.MasterDetailLayout;
+import org.vaadin.playground.crud20.components.TwoLineCard;
+import org.vaadin.playground.crud20.components.TwoLineCardVariant;
 import org.vaadin.playground.crud20.demo.sampledata.Employee;
 import org.vaadin.playground.crud20.demo.views.MainLayout;
 
@@ -77,21 +78,12 @@ public class EmployeesView extends MasterDetailLayout {
         VerticalLayout detailHeader = new VerticalLayout();
         detailHeader.setPadding(false);
         detailHeader.setSpacing(false);
-        HorizontalLayout employeeDetails = new HorizontalLayout();
-        employeeDetails.setPadding(true);
-        employeeDetails.addClassNames(LumoUtility.Padding.Bottom.SMALL);
 
-        Avatar employeeAvatar = new Avatar();
-        employeeAvatar.setWidth(60, Unit.PIXELS);
-        employeeAvatar.setHeight(60, Unit.PIXELS);
-        employeeAvatar.setImage("images/avatars/cody_fisher.jpg");
-        H3 employeeTitle = new H3("Cody Fisher");
-        Span employeeRole = new Span("Scrum Master");
-        VerticalLayout employeeDetailsWrapper = new VerticalLayout(employeeTitle, employeeRole);
-        employeeDetailsWrapper.setPadding(false);
-        employeeDetailsWrapper.setSpacing(false);
-        employeeDetailsWrapper.setJustifyContentMode(JustifyContentMode.CENTER);
-        employeeDetails.add(employeeAvatar, employeeDetailsWrapper);
+        var employeeDetails = new TwoLineCard();
+        employeeDetails.setAvatar("Cody Fisher", "images/avatars/cody_fisher.jpg");
+        employeeDetails.setPrimaryLineText("Cody Fisher");
+        employeeDetails.setSecondaryLineText("Scrum Master");
+        employeeDetails.addThemeVariants(TwoLineCardVariant.XLARGE);
 
         Tabs tabs = new Tabs();
         tabs.setWidthFull();
@@ -141,7 +133,7 @@ public class EmployeesView extends MasterDetailLayout {
         H4 summaryTitle = new H4("Summary");
         summaryTitle.addClassName(LumoUtility.Margin.Bottom.LARGE);
         H4 managerTitle= new H4("Manager");
-        HorizontalLayout manager = createEmployeeItem("Esther Howard", "Software Development Manager", "images/avatars/esther_howard.jpg");
+        var manager = createEmployeeItem("Esther Howard", "Software Development Manager", "images/avatars/esther_howard.jpg");
         summaryContent.add(
                 summaryTitle,
                 createTextItem(LineAwesomeIcon.PHONE_SOLID, "+358 12 345 6789"),
@@ -260,31 +252,16 @@ public class EmployeesView extends MasterDetailLayout {
         );
     }
 
-    private HorizontalLayout createEmployeeItem(String name, String role, String avatarImageUrl) {
-        Avatar avatar = new Avatar(name);
-        avatar.setImage(avatarImageUrl);
-        HorizontalLayout employeeItem = new HorizontalLayout();
-        employeeItem.setAlignItems(Alignment.CENTER);
-        employeeItem.addClassNames(LumoUtility.Padding.Vertical.SMALL, LumoUtility.Gap.SMALL);
-
-        VerticalLayout details = new VerticalLayout();
-        details.addClassName(LumoUtility.Gap.XSMALL);
-        details.setSpacing(false);
-        details.setPadding(false);
-        Span nameComponent = new Span(name);
-        nameComponent.addClassNames(LumoUtility.LineHeight.NONE, LumoUtility.FontWeight.MEDIUM);
-        Span roleComponent = new Span(role);
-        roleComponent.addClassNames(LumoUtility.LineHeight.NONE, LumoUtility.FontSize.XSMALL, LumoUtility.TextColor.SECONDARY);
-
-        details.add(nameComponent, roleComponent);
-
-        employeeItem.add(avatar, details);
-
+    private TwoLineCard createEmployeeItem(String name, String role, String avatarImageUrl) {
+        var employeeItem = new TwoLineCard();
+        employeeItem.setAvatar(name, avatarImageUrl);
+        employeeItem.setPrimaryLineText(name);
+        employeeItem.setSecondaryLineText(role);
         return employeeItem;
     }
     private ComponentRenderer<Component, Employee> employeeCardRenderer = new ComponentRenderer<>(
             employee -> {
-                HorizontalLayout employeeItem = createEmployeeItem(employee.getName(), employee.getRole(), "images/avatars/" + employee.getProfilePicUrl());
+                var employeeItem = createEmployeeItem(employee.getName(), employee.getRole(), "images/avatars/" + employee.getProfilePicUrl());
                 employeeItem.addClassNames(LumoUtility.Border.BOTTOM, LumoUtility.Padding.Horizontal.MEDIUM);
                 return employeeItem;
             }
