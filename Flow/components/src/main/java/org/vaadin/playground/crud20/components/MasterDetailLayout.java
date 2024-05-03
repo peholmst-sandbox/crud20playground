@@ -7,6 +7,8 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 public class MasterDetailLayout extends FlexLayout {
     // TODO Implement me!
 
+    private Component detail;
+
     public MasterDetailLayout() {
         addClassName("master-detail-layout");
         setHeightFull();
@@ -18,8 +20,19 @@ public class MasterDetailLayout extends FlexLayout {
     }
 
     public void setDetail(Component detail) {
+        if (this.detail != null) {
+            this.detail.removeFromParent();
+        }
+        this.detail = detail;
         detail.addClassName("detail");
         add(detail);
     }
 
+    public void setDetailVisible(boolean detailVisible) {
+
+    }
+
+    public boolean isDetailVisible() {
+        return true;
+    }
 }
