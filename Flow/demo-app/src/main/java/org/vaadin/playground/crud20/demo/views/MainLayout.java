@@ -27,7 +27,7 @@ public class MainLayout extends ContentContainer implements RouterLayout {
         logo.setHeight("44px");
 
         var header = new Toolbar();
-        header.addThemeVariants(ToolbarVariant.DARK);
+        header.addThemeVariants(ToolbarVariant.DARK, ToolbarVariant.PADDING);
         header.setTitle(logo);
         header.addToStart(navigationTabs);
         header.addToEnd(userAvatar);

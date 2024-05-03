@@ -8,6 +8,20 @@
     height: 100%;
 }
 
+.crud2-content-container-header {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+[theme~="header-border"] .crud2-content-container-header {
+    border-bottom: 1px solid var(--lumo-contrast-10pct);
+}
+
+[theme~="header-padding"] .crud2-content-container-header {
+    padding: var(--lumo-space-xs) var(--lumo-space-m);
+}
+
 .crud2-content-container-footer {
     border-top: 1px solid var(--lumo-contrast-10pct);
     padding: var(--lumo-space-s) var(--lumo-space-m);

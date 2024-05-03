@@ -3,8 +3,6 @@
     flex-direction: row;
     justify-content: stretch;
     align-items: stretch;
-    padding-left: var(--lumo-space-m);
-    padding-right: var(--lumo-space-m);
 }
 
 .crud20-toolbar-section-container {
@@ -20,8 +18,18 @@
     margin-right: var(--lumo-space-l);
 }
 
+span.crud20-toolbar-title {
+    font-size: var(--lumo-font-size-l);
+    line-height: var(--lumo-line-height-m);
+    font-weight: 600;
+}
+
 .crud20-toolbar-section {
     display: flex;
     flex-direction: row;
     align-items: center;
+}
+
+.crud20-toolbar[theme~="padding"]  {
+    padding: 0 var(--lumo-space-m);
 }

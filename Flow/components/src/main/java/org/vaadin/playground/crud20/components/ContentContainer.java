@@ -5,17 +5,16 @@ import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.shared.HasThemeVariant;
 import com.vaadin.flow.dom.Element;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-public class ContentContainer extends Composite<FlexLayout> implements HasSize {
+public class ContentContainer extends Composite<FlexLayout> implements HasThemeVariant<ContentContainerVariant>, HasSize {
 
     private final LazyComponent<Div> headerDiv = new LazyComponent<>(this::createHeaderDiv, getContent()::addComponentAsFirst);
     private final Div contentDiv;
     private final LazyComponent<FlexLayout> footerDiv = new LazyComponent<>(this::createFooterDiv, getContent()::add);
-
-    // TODO Add styles
 
     public ContentContainer() {
         addClassName("crud2-content-container");
@@ -29,9 +28,7 @@ public class ContentContainer extends Composite<FlexLayout> implements HasSize {
 
     private Div createHeaderDiv() {
         var header = new Div();
-        header.setWidthFull();
         header.addClassName("crud2-content-container-header");
-
         return header;
     }
 
@@ -48,6 +45,10 @@ public class ContentContainer extends Composite<FlexLayout> implements HasSize {
         if (header != null) {
             headerDiv.get().add(header);
         }
+    }
+
+    public final void addToHeader(@Nonnull Component... components) {
+        headerDiv.get().add(components);
     }
 
     public final void setContent(@Nullable Component content) {
@@ -77,5 +78,9 @@ public class ContentContainer extends Composite<FlexLayout> implements HasSize {
         if (footer != null) {
             footerDiv.get().add(footer);
         }
+    }
+
+    public final void addToFooter(@Nonnull Component... components) {
+        footerDiv.get().add(components);
     }
 }

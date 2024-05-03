@@ -9,7 +9,6 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
@@ -26,10 +25,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.vaadin.lineawesome.LineAwesomeIcon;
-import org.vaadin.playground.crud20.components.ContentContainer;
-import org.vaadin.playground.crud20.components.MasterDetailLayout;
-import org.vaadin.playground.crud20.components.TwoLineCard;
-import org.vaadin.playground.crud20.components.TwoLineCardVariant;
+import org.vaadin.playground.crud20.components.*;
 import org.vaadin.playground.crud20.demo.sampledata.Employee;
 import org.vaadin.playground.crud20.demo.views.MainLayout;
 
@@ -44,23 +40,21 @@ public class EmployeesView extends MasterDetailLayout {
         setHeightFull();
 
         /** Create content for the master **/
-        ContentContainer master = new ContentContainer();
+        var master = new ContentContainer();
+        master.addThemeVariants(ContentContainerVariant.HEADER_BORDER, ContentContainerVariant.HEADER_PADDING);
         master.addClassName(LumoUtility.Background.CONTRAST_5);
 
-        TextField search = new TextField();
-        search.setWidthFull();
-        search.setPlaceholder("Search");
-        H3 masterTitle = new H3("Employees");
-        Button addEmployee = new Button("Add New");
+        var addEmployee = new Button("Add New");
         addEmployee.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        HorizontalLayout titleContainer = new HorizontalLayout(masterTitle, addEmployee);
-        titleContainer.setJustifyContentMode(JustifyContentMode.BETWEEN);
-        titleContainer.setAlignItems(Alignment.CENTER);
-        titleContainer.setWidthFull();
-        VerticalLayout masterHeader = new VerticalLayout(titleContainer, search);
-        masterHeader.addClassNames(LumoUtility.Padding.Vertical.SMALL, LumoUtility.Padding.Horizontal.MEDIUM, LumoUtility.Border.BOTTOM, LumoUtility.Gap.XSMALL);
-        masterHeader.setWidthFull();
-        master.setHeader(masterHeader);
+
+        var masterToolbar = new Toolbar();
+        masterToolbar.setTitleText("Employees");
+        masterToolbar.addToEnd(addEmployee);
+        master.addToHeader(masterToolbar);
+
+        var search = new TextField();
+        search.setPlaceholder("Search");
+        master.addToHeader(search);
 
         VirtualList<Employee> employeesList = new VirtualList();
         employeesList.setHeightFull();
@@ -73,31 +67,27 @@ public class EmployeesView extends MasterDetailLayout {
 
         /** Create content for the detail **/
 
-        /* Create a container for the detail's header, content and footer */
-        ContentContainer detail = new ContentContainer();
-        VerticalLayout detailHeader = new VerticalLayout();
-        detailHeader.setPadding(false);
-        detailHeader.setSpacing(false);
+        var detail = new ContentContainer();
+
+        var detailToolbar = new Toolbar();
+        detailToolbar.addThemeVariants(ToolbarVariant.PADDING);
+        detail.addToHeader(detailToolbar);
 
         var employeeDetails = new TwoLineCard();
         employeeDetails.setAvatar("Cody Fisher", "images/avatars/cody_fisher.jpg");
         employeeDetails.setPrimaryLineText("Cody Fisher");
         employeeDetails.setSecondaryLineText("Scrum Master");
         employeeDetails.addThemeVariants(TwoLineCardVariant.XLARGE);
+        detailToolbar.setTitle(employeeDetails);
 
-        Tabs tabs = new Tabs();
+        var tabs = new Tabs();
         tabs.setWidthFull();
         Tab personal = new Tab("Personal");
         Tab job = new Tab("Job");
         Tab emergency = new Tab("Emergency");
         Tab documents = new Tab("Documents");
         tabs.add(personal, job, emergency, documents);
-
-        detailHeader.add(employeeDetails, tabs);
-
-        /* Set the header for detail pane */
-        detail.setHeader(detailHeader);
-
+        detail.addToHeader(tabs);
 
         /* Set the content for detail pane*/
         /* TODO Add other tabs and handling switching */

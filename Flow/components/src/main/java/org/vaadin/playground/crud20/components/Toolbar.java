@@ -3,8 +3,8 @@ package org.vaadin.playground.crud20.components;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.HasSize;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.shared.HasThemeVariant;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -38,7 +38,7 @@ public class Toolbar extends Composite<Div> implements HasThemeVariant<ToolbarVa
         return section;
     }
 
-    public void setTitle(@Nullable Component title) {
+    public final void setTitle(@Nullable Component title) {
         if (this.title != null) {
             this.title.removeFromParent();
         }
@@ -49,15 +49,23 @@ public class Toolbar extends Composite<Div> implements HasThemeVariant<ToolbarVa
         }
     }
 
-    public void addToStart(@Nonnull Component... components) {
+    public final void setTitleText(@Nullable String titleText) {
+        if (titleText == null) {
+            setTitle(null);
+        } else {
+            setTitle(new Span(titleText));
+        }
+    }
+
+    public final void addToStart(@Nonnull Component... components) {
         start.add(components);
     }
 
-    public void addToMiddle(@Nonnull Component... components) {
+    public final void addToMiddle(@Nonnull Component... components) {
         middle.add(components);
     }
 
-    public void addToEnd(@Nonnull Component... components) {
+    public final void addToEnd(@Nonnull Component... components) {
         end.add(components);
     }
 }
