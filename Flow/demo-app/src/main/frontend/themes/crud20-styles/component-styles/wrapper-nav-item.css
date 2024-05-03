@@ -1,0 +1,12 @@
+.crud20-wrapper-nav-item {
+    display: block;
+    color: var(--lumo-body-text-color);
+}
+
+.crud20-wrapper-nav-item:hover {
+    text-decoration: none;
+}
+
+.crud20-wrapper-nav-item[highlight] {
+    background: var(--lumo-primary-color-10pct);
+}
