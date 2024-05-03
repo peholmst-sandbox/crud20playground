@@ -23,7 +23,15 @@
 }
 
 .crud2-content-container-footer {
-    border-top: 1px solid var(--lumo-contrast-10pct);
-    padding: var(--lumo-space-s) var(--lumo-space-m);
+    display: flex;
+    flex-direction: column;
     box-sizing: border-box;
+}
+
+[theme~="footer-border"] .crud2-content-container-footer {
+    border-top: 1px solid var(--lumo-contrast-10pct);
+}
+
+[theme~="footer-padding"] .crud2-content-container-footer {
+    padding: var(--lumo-space-xs) var(--lumo-space-m);
 }

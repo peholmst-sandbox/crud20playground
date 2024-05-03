@@ -68,17 +68,18 @@ public class EmployeesView extends MasterDetailLayout {
         /** Create content for the detail **/
 
         var detail = new ContentContainer();
+        detail.addThemeVariants(ContentContainerVariant.FOOTER_BORDER, ContentContainerVariant.FOOTER_PADDING);
 
-        var detailToolbar = new Toolbar();
-        detailToolbar.addThemeVariants(ToolbarVariant.PADDING);
-        detail.addToHeader(detailToolbar);
+        var headerToolbar = new Toolbar();
+        headerToolbar.addThemeVariants(ToolbarVariant.PADDING);
+        detail.addToHeader(headerToolbar);
 
         var employeeDetails = new TwoLineCard();
         employeeDetails.setAvatar("Cody Fisher", "images/avatars/cody_fisher.jpg");
         employeeDetails.setPrimaryLineText("Cody Fisher");
         employeeDetails.setSecondaryLineText("Scrum Master");
         employeeDetails.addThemeVariants(TwoLineCardVariant.XLARGE);
-        detailToolbar.setTitle(employeeDetails);
+        headerToolbar.setTitle(employeeDetails);
 
         var tabs = new Tabs();
         tabs.setWidthFull();
@@ -93,14 +94,13 @@ public class EmployeesView extends MasterDetailLayout {
         /* TODO Add other tabs and handling switching */
         detail.setContent(buildPersonalInfo());
 
-        HorizontalLayout detailFooter = new HorizontalLayout();
-        detailFooter.addClassName(LumoUtility.Gap.SMALL);
-        Button edit = new Button("Edit");
-        Button share = new Button("Share");
-        Button delete = new Button("Delete");
+        var footerToolbar = new Toolbar();
+        var edit = new Button("Edit");
+        var share = new Button("Share");
+        var delete = new Button("Delete");
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        detailFooter.add(edit, share, delete);
-        detail.setFooter(detailFooter);
+        footerToolbar.addToStart(edit, share, delete);
+        detail.setFooter(footerToolbar);
 
         setDetail(detail);
 

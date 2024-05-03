@@ -28,6 +28,7 @@ span.crud20-toolbar-title {
     display: flex;
     flex-direction: row;
     align-items: center;
+    gap: var(--lumo-space-xs);
 }
 
 .crud20-toolbar[theme~="padding"]  {

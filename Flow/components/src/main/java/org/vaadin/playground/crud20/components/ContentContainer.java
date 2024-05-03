@@ -14,7 +14,7 @@ public class ContentContainer extends Composite<FlexLayout> implements HasThemeV
 
     private final LazyComponent<Div> headerDiv = new LazyComponent<>(this::createHeaderDiv, getContent()::addComponentAsFirst);
     private final Div contentDiv;
-    private final LazyComponent<FlexLayout> footerDiv = new LazyComponent<>(this::createFooterDiv, getContent()::add);
+    private final LazyComponent<Div> footerDiv = new LazyComponent<>(this::createFooterDiv, getContent()::add);
 
     public ContentContainer() {
         addClassName("crud2-content-container");
@@ -32,11 +32,9 @@ public class ContentContainer extends Composite<FlexLayout> implements HasThemeV
         return header;
     }
 
-    private FlexLayout createFooterDiv() {
-        var footer = new FlexLayout();
-        footer.setWidthFull();
+    private Div createFooterDiv() {
+        var footer = new Div();
         footer.addClassName("crud2-content-container-footer");
-
         return footer;
     }
 
