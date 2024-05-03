@@ -1,6 +1,7 @@
 package org.vaadin.playground.crud20.data.selection;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
+
 import java.io.Serializable;
 import java.util.Optional;
 import java.util.Set;

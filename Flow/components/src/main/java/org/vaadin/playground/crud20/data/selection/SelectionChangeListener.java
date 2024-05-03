@@ -1,6 +1,7 @@
 package org.vaadin.playground.crud20.data.selection;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
+
 import java.io.Serializable;
 
 public interface SelectionChangeListener<T> extends Serializable {

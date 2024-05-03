@@ -1,8 +1,8 @@
 package org.vaadin.playground.crud20.data.selection;
 
 import com.vaadin.flow.shared.Registration;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedList;
