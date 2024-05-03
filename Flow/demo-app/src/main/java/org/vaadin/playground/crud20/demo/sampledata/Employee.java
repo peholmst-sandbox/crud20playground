@@ -1,31 +1,11 @@
 package org.vaadin.playground.crud20.demo.sampledata;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class Employee {
-    private String name;
-    private String role;
-    private String profilePicUrl;
+public record Employee(EmployeeId id, String name, String role, String profilePicUrl) {
 
-    public Employee(String name, String role, String profilePicUrl) {
-        this.name = name;
-        this.role = role;
-        this.profilePicUrl = profilePicUrl;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public String getProfilePicUrl() {
-        return profilePicUrl;
-    }
-
-    public static ArrayList<Employee> createEmployees() {
+    public static List<Employee> createEmployees() {
         String[][] items = {
                 {"Esther Howard", "Software Development Manager", "esther_howard.jpg"},
                 {"Jane Cooper", "Project Manager", "jane_cooper.jpg"},
@@ -44,8 +24,9 @@ public class Employee {
                 {"Cameron Williamson", "UI/UX Designer", "cameron_williamson.jpg"}
         };
         ArrayList<Employee> parties = new ArrayList<>();
-        for (String item[] : items) {
-            parties.add(new Employee( item[0],  item[1],  item[2]));
+        var id = 1L;
+        for (var item : items) {
+            parties.add(new Employee(new EmployeeId(id++), item[0], item[1], item[2]));
         }
         return parties;
     }

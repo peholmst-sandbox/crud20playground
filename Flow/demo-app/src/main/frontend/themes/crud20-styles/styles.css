@@ -5,3 +5,5 @@
 @import "component-styles/top-nav.css";
 @import "component-styles/two-line-card.css";
 @import "component-styles/wrapper-nav-item.css";
+
+@import "view-styles/common.css";
