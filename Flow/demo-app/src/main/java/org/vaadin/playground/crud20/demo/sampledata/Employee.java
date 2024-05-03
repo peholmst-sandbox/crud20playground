@@ -1,4 +1,4 @@
-package org.vaadin.playground.crud20.sampledata;
+package org.vaadin.playground.crud20.demo.sampledata;
 
 import java.util.ArrayList;
 
