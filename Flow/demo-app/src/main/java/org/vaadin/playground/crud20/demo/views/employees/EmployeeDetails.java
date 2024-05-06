@@ -23,31 +23,21 @@ import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 import org.vaadin.playground.crud20.components.*;
-import org.vaadin.playground.crud20.data.selection.SelectionModel;
-import org.vaadin.playground.crud20.data.selection.SingleSelectionModel;
+import org.vaadin.playground.crud20.data.property.Property;
 import org.vaadin.playground.crud20.demo.sampledata.Employee;
 import org.vaadin.playground.crud20.demo.sampledata.EmployeeId;
-import org.vaadin.playground.crud20.router.selection.SingleSelectionNavigationController;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 
+import static org.vaadin.playground.crud20.util.ComponentUtil2.registerOnAttach;
+
 class EmployeeDetails extends ContentContainer {
 
-    private enum TabId {
-        personal, job, emergency, documents
-    }
+    private final Employee employee;
 
-    private final SingleSelectionModel<TabId> tabSelectionModel = SelectionModel.single();
-    private final SingleSelectionNavigationController<TabId> tabSelectionController = new SingleSelectionNavigationController<>(
-            this,
-            tabSelectionModel,
-            "tab",
-            TabId::valueOf
-    );
-
-    public EmployeeDetails(SingleSelectionNavigationController<EmployeeId> employeeSelectionController) { // TODO Pass in Employee object
-        tabSelectionController.setParentController(employeeSelectionController);
+    public EmployeeDetails(Employee employee, Property<EmployeesView.Tab> selectedTab) {
+        this.employee = employee;
         addThemeVariants(ContentContainerVariant.FOOTER_BORDER, ContentContainerVariant.FOOTER_PADDING);
 
         var headerToolbar = new Toolbar();
@@ -61,18 +51,16 @@ class EmployeeDetails extends ContentContainer {
         headerEmployeeInfo.addThemeVariants(TwoLineCardVariant.XLARGE);
         headerToolbar.setTitle(headerEmployeeInfo);
 
-        var tabs = new TaggedTabs<TabId>();
+        var tabs = new TaggedTabs<EmployeesView.Tab>();
         tabs.setWidthFull();
-        tabs.add(TabId.personal, createTab("Personal", TabId.personal));
-        tabs.add(TabId.job, createTab("Job", TabId.job));
-        tabs.add(TabId.emergency, createTab("Emergency", TabId.emergency));
-        tabs.add(TabId.documents, createTab("Documents", TabId.documents));
+        tabs.add(EmployeesView.Tab.personal, createTab("Personal", EmployeesView.Tab.personal));
+        tabs.add(EmployeesView.Tab.job, createTab("Job", EmployeesView.Tab.job));
+        tabs.add(EmployeesView.Tab.emergency, createTab("Emergency", EmployeesView.Tab.emergency));
+        tabs.add(EmployeesView.Tab.documents, createTab("Documents", EmployeesView.Tab.documents));
         addToHeader(tabs);
 
         var tabContainer = new TaggedSwitchingContainer<>(this::createTabContent);
         tabContainer.setSizeFull();
-        tabSelectionModel.addAction(tabContainer::switchTo, () -> tabContainer.switchTo(TabId.personal));
-        tabSelectionModel.addAction(tabs::switchTo, () -> tabs.switchTo(TabId.personal));
         setContent(tabContainer);
 
         var footerToolbar = new Toolbar();
@@ -82,15 +70,20 @@ class EmployeeDetails extends ContentContainer {
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
         footerToolbar.addToStart(edit, share, delete);
         setFooter(footerToolbar);
+
+        registerOnAttach(this, () -> selectedTab.triggerIfPresentOrElse(tabContainer::switchTo, () -> tabContainer.switchTo(EmployeesView.Tab.personal)));
+        registerOnAttach(this, () -> selectedTab.triggerIfPresentOrElse(tabs::switchTo, () -> tabs.switchTo(EmployeesView.Tab.personal)));
     }
 
-    private Tab createTab(String text, TabId tabId) {
-        var link = new RouterLink(text, EmployeesView.class, tabSelectionController.getRouteParametersForSelection(tabId));
+    private Tab createTab(String text, EmployeesView.Tab tab) {
+        // This is the only way of navigating between tabs: through the router. Another alternative would be to have
+        // the UI interact with the property, and then have a two-way binding between the property and the router.
+        var link = new RouterLink(text, EmployeesView.class, EmployeesView.routeParamsForEmployee(employee.id(), tab));
         return new Tab(link);
     }
 
-    private Component createTabContent(TabId tabId) {
-        return switch (tabId) {
+    private Component createTabContent(EmployeesView.Tab tab) {
+        return switch (tab) {
             case personal -> new PersonalTab();
             case job -> new JobTab();
             case emergency -> new EmergencyTab();
