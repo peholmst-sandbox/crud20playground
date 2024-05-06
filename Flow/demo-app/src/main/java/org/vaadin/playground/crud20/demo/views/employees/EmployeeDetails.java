@@ -30,6 +30,7 @@ import org.vaadin.playground.crud20.demo.sampledata.EmployeeId;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
+import static org.vaadin.playground.crud20.demo.views.employees.EmployeesView.routeParamsForEmployee;
 import static org.vaadin.playground.crud20.util.ComponentUtil2.registerOnAttach;
 
 class EmployeeDetails extends ContentContainer {
@@ -78,7 +79,7 @@ class EmployeeDetails extends ContentContainer {
     private Tab createTab(String text, EmployeesView.Tab tab) {
         // This is the only way of navigating between tabs: through the router. Another alternative would be to have
         // the UI interact with the property, and then have a two-way binding between the property and the router.
-        var link = new RouterLink(text, EmployeesView.class, EmployeesView.routeParamsForEmployee(employee.id(), tab));
+        var link = new RouterLink(text, EmployeesView.class, routeParamsForEmployee(employee.id(), tab));
         return new Tab(link);
     }
 
@@ -105,7 +106,10 @@ class EmployeeDetails extends ContentContainer {
             H4 summaryTitle = new H4("Summary");
             summaryTitle.addClassName(LumoUtility.Margin.Bottom.LARGE);
             H4 managerTitle = new H4("Manager");
-            var manager = new EmployeeCard(new Employee(new EmployeeId(1), "Esther Howard", "Software Development Manager", "esther_howard.jpg"));
+            var manager = new WrapperNavItem(new EmployeeCard(new Employee(new EmployeeId(1), "Esther Howard", "Software Development Manager", "esther_howard.jpg")),
+                    EmployeesView.class,
+                    routeParamsForEmployee(new EmployeeId(1))
+            );
             summaryContent.add(
                     summaryTitle,
                     createTextItem(LineAwesomeIcon.PHONE_SOLID, "+358 12 345 6789"),
