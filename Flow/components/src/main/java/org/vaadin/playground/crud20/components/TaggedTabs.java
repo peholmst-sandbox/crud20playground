@@ -21,7 +21,7 @@ public class TaggedTabs<TAG> extends Composite<Tabs> implements HasSize {
         getContent().add(tab);
     }
 
-    public final void select(@Nullable TAG tag) {
+    public final void switchTo(@Nullable TAG tag) {
         if (tag == null) {
             getContent().setSelectedTab(null);
         } else {

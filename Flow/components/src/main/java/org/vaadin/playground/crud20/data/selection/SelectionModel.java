@@ -32,7 +32,7 @@ public abstract sealed class SelectionModel<T> implements Serializable permits S
         fireSelectionChangeEvent(new SelectionChangeEvent<>(this, old, selection));
     }
 
-    public void clearSelection() {
+    public void deselectAll() {
         setSelection(Collections.emptySet());
     }
 

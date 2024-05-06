@@ -18,7 +18,7 @@ public final class SingleSelectionModel<T> extends SelectionModel<T> {
 
     public void select(@Nullable T selectedItem) {
         if (selectedItem == null) {
-            clearSelection();
+            deselectAll();
         } else {
             setSelection(Set.of(selectedItem));
         }

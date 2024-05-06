@@ -69,10 +69,10 @@ class EmployeeDetails extends ContentContainer {
         tabs.add(TabId.documents, createTab("Documents", TabId.documents));
         addToHeader(tabs);
 
-        var tabContainer = new LazySwitchingContainer<>(this::createTabContent);
+        var tabContainer = new TaggedSwitchingContainer<>(this::createTabContent);
         tabContainer.setSizeFull();
         tabSelectionModel.addAction(tabContainer::switchTo, () -> tabContainer.switchTo(TabId.personal));
-        tabSelectionModel.addAction(tabs::select, () -> tabs.select(TabId.personal));
+        tabSelectionModel.addAction(tabs::switchTo, () -> tabs.switchTo(TabId.personal));
         setContent(tabContainer);
 
         var footerToolbar = new Toolbar();

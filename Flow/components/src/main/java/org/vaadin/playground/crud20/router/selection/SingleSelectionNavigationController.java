@@ -120,7 +120,7 @@ public final class SingleSelectionNavigationController<T> implements Serializabl
         getRouteParameters().get(selectionParameterName)
                 .map(parameterConverter)
                 .filter(parameterValidator)
-                .ifPresentOrElse(selectionModel::select, selectionModel::clearSelection);
+                .ifPresentOrElse(selectionModel::select, selectionModel::deselectAll);
         this.childControllers.forEach(SingleSelectionNavigationController::updateSelectionModel);
 
     }
