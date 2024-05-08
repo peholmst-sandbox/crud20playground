@@ -14,7 +14,7 @@ public class WritableProperty<T> extends Property<T> {
         this(null, null);
     }
 
-    public WritableProperty(@Nullable T initialValue, @Nullable T emptyValue) {
+    public WritableProperty(T initialValue, @Nullable T emptyValue) {
         this.value = initialValue;
         this.emptyValue = emptyValue;
     }
@@ -25,20 +25,19 @@ public class WritableProperty<T> extends Property<T> {
         return emptyValue;
     }
 
-    public final void set(@Nullable T value) {
+    public final void set(T value) {
         if (Objects.equals(this.value, value)) {
             return;
         }
         var old = this.value;
         this.value = value;
-        notifyListeners(new PropertyValueChangeEvent<>(this, old, value));
+        notifyListeners(new PropertyValueChangeEvent<>(this, old, this.value));
     }
 
     public final void clear() {
         set(emptyValue);
     }
 
-    @Nullable
     @Override
     public final T value() {
         return value;
@@ -48,7 +47,7 @@ public class WritableProperty<T> extends Property<T> {
         return new WritableProperty<>();
     }
 
-    public static <T> @Nonnull WritableProperty<T> create(@Nullable T initialValue) {
+    public static <T> @Nonnull WritableProperty<T> create(T initialValue) {
         return new WritableProperty<>(initialValue, null);
     }
 }

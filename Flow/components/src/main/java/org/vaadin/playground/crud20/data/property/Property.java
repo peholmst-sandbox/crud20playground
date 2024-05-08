@@ -7,6 +7,7 @@ import com.vaadin.flow.function.SerializableRunnable;
 import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.*;
@@ -18,14 +19,13 @@ public abstract class Property<T> implements Serializable {
     private final WeakHashMap<SerializableConsumer<PropertyValueChangeEvent<T>>, Void> weakListeners = new WeakHashMap<>();
     private final Set<SerializableConsumer<PropertyValueChangeEvent<T>>> listeners = new HashSet<>();
 
-    @Nullable
     public abstract T value();
 
     @Nullable
     public abstract T emptyValue();
 
     public final boolean contains(@Nullable T value) {
-        return Objects.equals(value(), value);
+        return Objects.equals(value, value());
     }
 
     public final boolean isEmpty() {
@@ -73,8 +73,16 @@ public abstract class Property<T> implements Serializable {
 
     protected final void notifyListeners(@Nonnull PropertyValueChangeEvent<T> event) {
         requireNonNull(event);
-        Set.copyOf(listeners).forEach(listener -> listener.accept(event));
-        Set.copyOf(weakListeners.keySet()).forEach(listener -> listener.accept(event));
+        Set.copyOf(listeners).forEach(listener -> notifyListener(event, listener));
+        Set.copyOf(weakListeners.keySet()).forEach(listener -> notifyListener(event, listener));
+    }
+
+    private void notifyListener(@Nonnull PropertyValueChangeEvent<T> event, @Nonnull SerializableConsumer<PropertyValueChangeEvent<T>> listener) {
+        try {
+            listener.accept(event);
+        } catch (Exception ex) {
+            LoggerFactory.getLogger(Property.class).error("Error in listener", ex);
+        }
     }
 
     public final void doIfPresent(@Nonnull SerializableConsumer<T> action) {

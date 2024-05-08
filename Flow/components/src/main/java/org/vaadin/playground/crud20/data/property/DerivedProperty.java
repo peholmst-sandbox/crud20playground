@@ -18,6 +18,7 @@ public final class DerivedProperty<T, S> extends Property<T> {
     public DerivedProperty(@Nonnull Property<S> source, @Nonnull SerializableFunction<S, T> mapper, @Nullable T emptyValue) {
         this.mapper = requireNonNull(mapper);
         this.emptyValue = emptyValue;
+        this.cachedValue = emptyValue;
         source.addWeakListener(onSourceValueChangeEvent);
         updateCachedValue(source.value(), source.isEmpty());
     }
