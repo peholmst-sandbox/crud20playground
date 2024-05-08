@@ -7,7 +7,7 @@ import jakarta.annotation.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
-public final class DerivedProperty<T, S> extends Property<T> {
+final class DerivedProperty<T, S> extends AbstractProperty<T> {
 
     private final SerializableFunction<S, T> mapper;
     private final T emptyValue;
@@ -15,10 +15,9 @@ public final class DerivedProperty<T, S> extends Property<T> {
     private final SerializableConsumer<PropertyValueChangeEvent<S>> onSourceValueChangeEvent = (event) -> updateCachedValue(event.value(), event.isEmpty());
     private T cachedValue;
 
-    public DerivedProperty(@Nonnull Property<S> source, @Nonnull SerializableFunction<S, T> mapper, @Nullable T emptyValue) {
+    public DerivedProperty(@Nonnull AbstractProperty<S> source, @Nonnull SerializableFunction<S, T> mapper, @Nullable T emptyValue) {
         this.mapper = requireNonNull(mapper);
         this.emptyValue = emptyValue;
-        this.cachedValue = emptyValue;
         source.addWeakListener(onSourceValueChangeEvent);
         updateCachedValue(source.value(), source.isEmpty());
     }

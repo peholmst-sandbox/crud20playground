@@ -1,53 +1,31 @@
 package org.vaadin.playground.crud20.data.property;
 
+import com.vaadin.flow.data.converter.Converter;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-import java.util.Objects;
+public interface WritableProperty<T> extends Property<T> {
 
-public class WritableProperty<T> extends Property<T> {
+    @Nonnull
+    <E> ConvertedProperty<E> convert(@Nonnull Converter<E, T> converter);
 
-    private final T emptyValue;
-    private T value;
+    void set(T value);
 
-    public WritableProperty() {
-        this(null, null);
+    void clear();
+
+    static <T> @Nonnull WritableProperty<T> create() {
+        return new DefaultWritableProperty<>();
     }
 
-    public WritableProperty(T initialValue, @Nullable T emptyValue) {
-        this.value = initialValue;
-        this.emptyValue = emptyValue;
+    static <T> @Nonnull WritableProperty<T> create(T initialValue) {
+        return new DefaultWritableProperty<>(initialValue, null);
     }
 
-    @Nullable
-    @Override
-    public final T emptyValue() {
-        return emptyValue;
+    static <T> @Nonnull WritableProperty<T> createWithEmptyValue(@Nullable T emptyValue) {
+        return new DefaultWritableProperty<>(null, emptyValue);
     }
 
-    public final void set(T value) {
-        if (Objects.equals(this.value, value)) {
-            return;
-        }
-        var old = this.value;
-        this.value = value;
-        notifyListeners(new PropertyValueChangeEvent<>(this, old, this.value));
-    }
-
-    public final void clear() {
-        set(emptyValue);
-    }
-
-    @Override
-    public final T value() {
-        return value;
-    }
-
-    public static <T> @Nonnull WritableProperty<T> create() {
-        return new WritableProperty<>();
-    }
-
-    public static <T> @Nonnull WritableProperty<T> create(T initialValue) {
-        return new WritableProperty<>(initialValue, null);
+    static <T> @Nonnull WritableProperty<T> createWithEmptyValue(T initialValue, @Nullable T emptyValue) {
+        return new DefaultWritableProperty<>(initialValue, emptyValue);
     }
 }
