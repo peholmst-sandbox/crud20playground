@@ -1,0 +1,115 @@
+package org.vaadin.playground.crud20.data.property.validation;
+
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.validator.EmailValidator;
+import com.vaadin.flow.data.validator.StringLengthValidator;
+import org.junit.jupiter.api.Test;
+import org.vaadin.playground.crud20.data.property.WritableProperty;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class PropertyValidatorTest {
+
+    @Test
+    void validators_are_not_automatically_triggered_on_the_initial_value() {
+        var property = WritableProperty.create("");
+        var validator = PropertyValidator.of(property).withValidator(new StringLengthValidator("error", 1, 10));
+        assertThat(validator.hasError().value()).isFalse();
+        assertThat(validator.result().value()).isEmpty();
+    }
+
+    @Test
+    void validators_are_by_default_triggered_when_the_property_changes() {
+        var property = WritableProperty.create("");
+        var validator = PropertyValidator.of(property).withValidator(new StringLengthValidator("error", 1, 10));
+        property.set("hello");
+        assertThat(validator.hasError().value()).isFalse();
+        assertThat(validator.result().value()).containsExactly(ValidationResult.ok());
+        property.set("");
+        assertThat(validator.hasError().value()).isTrue();
+        assertThat(validator.result().value()).containsExactly(ValidationResult.error("error"));
+    }
+
+    @Test
+    void validators_can_be_configured_to_use_explicit_validation_only() {
+        var property = WritableProperty.create("");
+        var validator = PropertyValidator.of(property)
+                .withValidator(new StringLengthValidator("error", 1, 10))
+                .withValidationStrategy(PropertyValidator.ValidateOnCommand.INSTANCE);
+        property.set("hello");
+        assertThat(validator.hasError().value()).isFalse();
+        assertThat(validator.result().value()).isEmpty();
+        property.set("");
+        assertThat(validator.hasError().value()).isFalse();
+        assertThat(validator.result().value()).isEmpty();
+        validator.validate();
+        assertThat(validator.hasError().value()).isTrue();
+        assertThat(validator.result().value()).containsExactly(ValidationResult.error("error"));
+    }
+
+    @Test
+    void validators_can_be_grouped() {
+        var verySlowValidators = new ValidatorGroup() {};
+        var property = WritableProperty.create("");
+        var validator = PropertyValidator.of(property)
+                .withValidator(new StringLengthValidator("length error", 1, 10))
+                .withValidator(new EmailValidator("email error", true), verySlowValidators)
+                .withValidationStrategy(PropertyValidator.ValidateOnCommand.INSTANCE);
+
+        property.set("invalid email that is also too long");
+        validator.validateGroups(PropertyValidator.DEFAULT_VALIDATOR_GROUP);
+        assertThat(validator.hasError().value()).isTrue();
+        assertThat(validator.result().value()).containsOnly(ValidationResult.error("length error"));
+
+        validator.validateGroups(verySlowValidators);
+        assertThat(validator.hasError().value()).isTrue();
+        assertThat(validator.result().value()).containsOnly(ValidationResult.error("email error"));
+    }
+
+    @Test
+    void default_validator_group_is_always_first() {
+        var verySlowValidators = new ValidatorGroup() {};
+        var property = WritableProperty.create("");
+        var validator = PropertyValidator.of(property)
+                .withValidator(new StringLengthValidator("length error", 1, 10))
+                .withValidator(new EmailValidator("email error", true), verySlowValidators);
+        property.set("invalid email that is also too long");
+        assertThat(validator.result().value()).containsExactly(
+                ValidationResult.error("length error"),
+                ValidationResult.error("email error")
+        );
+    }
+
+    @Test
+    void validators_can_be_disabled_and_enabled_by_group() {
+        var verySlowValidators = new ValidatorGroup() {};
+        var property = WritableProperty.create("");
+        var validator = PropertyValidator.of(property)
+                .withValidator(new StringLengthValidator("length error", 1, 10))
+                .withValidator(new EmailValidator("email error", true), verySlowValidators)
+                .disableValidatorGroup(verySlowValidators);
+        property.set("invalid email that is also too long");
+        assertThat(validator.result().value()).containsExactly(ValidationResult.error("length error"));
+        validator.enableValidatorGroup(verySlowValidators);
+        assertThat(validator.result().value()).containsExactly(
+                ValidationResult.error("length error"),
+                ValidationResult.error("email error")
+        );
+    }
+
+    @Test
+    void validators_can_be_disabled_and_enabled_by_class() {
+        var property = WritableProperty.create("");
+        var validator = PropertyValidator.of(property)
+                .withValidator(new StringLengthValidator("length error", 1, 10))
+                .withValidator(new EmailValidator("email error", true))
+                .disableValidatorsOfType(EmailValidator.class);
+        property.set("invalid email that is also too long");
+        assertThat(validator.result().value()).containsExactly(ValidationResult.error("length error"));
+        validator.enableValidatorsOfType(EmailValidator.class);
+        assertThat(validator.result().value()).containsExactly(
+                ValidationResult.error("length error"),
+                ValidationResult.error("email error")
+        );
+    }
+}

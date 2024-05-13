@@ -77,7 +77,7 @@ abstract class AbstractProperty<T> implements Property<T> {
         return () -> listeners.remove(listener);
     }
 
-    protected void addWeakListener(@Nonnull SerializableConsumer<PropertyValueChangeEvent<T>> listener) {
+    public void addWeakListener(@Nonnull SerializableConsumer<PropertyValueChangeEvent<T>> listener) {
         weakListeners.put(requireNonNull(listener), null);
     }
 

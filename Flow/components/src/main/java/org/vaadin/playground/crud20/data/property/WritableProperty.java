@@ -21,8 +21,10 @@ public interface WritableProperty<T> extends Property<T> {
         return new DefaultWritableProperty<>(initialValue, null);
     }
 
+    // TODO createWithEmptyValue needs a better name. Now you'd think it creates a new, empty property.
+
     static <T> @Nonnull WritableProperty<T> createWithEmptyValue(@Nullable T emptyValue) {
-        return new DefaultWritableProperty<>(null, emptyValue);
+        return new DefaultWritableProperty<>(emptyValue, emptyValue);
     }
 
     static <T> @Nonnull WritableProperty<T> createWithEmptyValue(T initialValue, @Nullable T emptyValue) {

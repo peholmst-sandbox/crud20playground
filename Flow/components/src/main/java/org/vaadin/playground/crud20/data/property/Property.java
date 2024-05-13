@@ -42,6 +42,8 @@ public interface Property<T> extends Serializable {
     @Nonnull
     Registration addListener(@Nonnull SerializableConsumer<PropertyValueChangeEvent<T>> listener);
 
+    void addWeakListener(@Nonnull SerializableConsumer<PropertyValueChangeEvent<T>> listener);
+
     void doIfPresent(@Nonnull SerializableConsumer<T> action);
 
     void doIfPresentOrElse(@Nonnull SerializableConsumer<T> action, @Nonnull SerializableRunnable emptyAction);
