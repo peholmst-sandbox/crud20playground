@@ -1,5 +1,6 @@
 package org.vaadin.playground.crud20.data.property.validation;
 
+import com.vaadin.flow.data.binder.ErrorLevel;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.binder.ValueContext;
@@ -11,6 +12,7 @@ import org.vaadin.playground.crud20.data.property.WritableProperty;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -18,6 +20,8 @@ public class PropertyValidator<T> implements Serializable {
 
     private final WritableProperty<List<ValidationResult>> validationResult = WritableProperty.createWithEmptyValue(Collections.emptyList());
     private final Property<Boolean> hasError = validationResult.map(results -> results.stream().anyMatch(ValidationResult::isError), false);
+    private final Property<ErrorLevel> errorLevel = validationResult.map(results -> results.stream().flatMap(r -> r.getErrorLevel().stream()).max(Comparator.comparing(ErrorLevel::intValue)).orElse(null));
+    private final Property<String> errorMessage = validationResult.map(results -> results.stream().filter(r -> r.getErrorLevel().isPresent()).map(ValidationResult::getErrorMessage).collect(Collectors.joining("\n")), "");
     private final Property<T> property;
     private ValueContext valueContext = new ValueContext();
     private ValidationStrategy validationStrategy = ValidateOnChange.INSTANCE;
@@ -42,6 +46,14 @@ public class PropertyValidator<T> implements Serializable {
 
     public @Nonnull Property<Boolean> hasError() {
         return hasError;
+    }
+
+    public @Nonnull Property<ErrorLevel> errorLevel() {
+        return errorLevel;
+    }
+
+    public @Nonnull Property<String> errorMessage() {
+        return errorMessage;
     }
 
     public @Nonnull PropertyValidator<T> withValidator(@Nonnull Validator<T> validator) {
@@ -129,7 +141,7 @@ public class PropertyValidator<T> implements Serializable {
         );
     }
 
-    public void clearResult() {
+    public void clear() {
         validationResult.set(Collections.emptyList());
     }
 
@@ -150,10 +162,6 @@ public class PropertyValidator<T> implements Serializable {
     public interface ValidationStrategy extends Serializable {
 
         default void validatorAdded(@Nonnull PropertyValidator<?> propertyValidator, @Nonnull Validator<?> validator, @Nonnull ValidatorGroup validatorGroup) {
-            // NOP
-        }
-
-        default void validatorRemoved(@Nonnull PropertyValidator<?> propertyValidator, @Nonnull Validator<?> validator, @Nonnull ValidatorGroup validatorGroup) {
             // NOP
         }
 
