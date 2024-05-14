@@ -9,7 +9,11 @@ public interface WritableProperty<T> extends Property<T> {
     @Nonnull
     <E> ConvertedProperty<E> convert(@Nonnull Converter<E, T> converter);
 
-    void set(T value);
+    default void set(T value) {
+        set(value, false);
+    }
+
+    void set(T value, boolean force);
 
     void clear();
 

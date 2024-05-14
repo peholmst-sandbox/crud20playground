@@ -1,27 +1,24 @@
 package org.vaadin.playground.crud20.data.property.validation;
 
-import com.vaadin.flow.data.binder.ErrorLevel;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.function.SerializableConsumer;
 import jakarta.annotation.Nonnull;
-import org.vaadin.playground.crud20.data.property.Property;
-import org.vaadin.playground.crud20.data.property.PropertyValueChangeEvent;
-import org.vaadin.playground.crud20.data.property.WritableProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.vaadin.playground.crud20.data.property.*;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
-public class PropertyValidator<T> implements Serializable {
+public final class PropertyValidator<T> implements HasValidationState, Serializable {
 
-    private final WritableProperty<List<ValidationResult>> validationResult = WritableProperty.createWithEmptyValue(Collections.emptyList());
-    private final Property<Boolean> hasError = validationResult.map(results -> results.stream().anyMatch(ValidationResult::isError), false);
-    private final Property<ErrorLevel> errorLevel = validationResult.map(results -> results.stream().flatMap(r -> r.getErrorLevel().stream()).max(Comparator.comparing(ErrorLevel::intValue)).orElse(null));
-    private final Property<String> errorMessage = validationResult.map(results -> results.stream().filter(r -> r.getErrorLevel().isPresent()).map(ValidationResult::getErrorMessage).collect(Collectors.joining("\n")), "");
+    private final Logger log = LoggerFactory.getLogger(getClass());
+    private final WritableProperty<List<ValidationResult>> validationResult = WritableProperty.create(Collections.emptyList());
+    private final Property<ValidationState> validationState = validationResult.map(PropertyValidator::extractValidationState);
     private final Property<T> property;
     private ValueContext valueContext = new ValueContext();
     private ValidationStrategy validationStrategy = ValidateOnChange.INSTANCE;
@@ -30,6 +27,17 @@ public class PropertyValidator<T> implements Serializable {
     private final Map<ValidatorGroup, List<ValidatorEntry>> validators = new HashMap<>();
     public static final ValidatorGroup DEFAULT_VALIDATOR_GROUP = new ValidatorGroup() {
     };
+
+    private static @Nonnull ValidationState extractValidationState(@Nonnull List<ValidationResult> validationResults) {
+        if (validationResults.isEmpty()) {
+            return new ValidationState.Unknown();
+        }
+        return validationResults.stream()
+                .filter(r -> r.getErrorLevel().isPresent())
+                .max(Comparator.comparing(r -> r.getErrorLevel().get().intValue()))
+                .map(r -> (ValidationState) new ValidationState.Failure(r.getErrorLevel().orElseThrow(), r.getErrorMessage()))
+                .orElse(new ValidationState.Success());
+    }
 
     public PropertyValidator(@Nonnull Property<T> property) {
         this.property = property;
@@ -40,23 +48,14 @@ public class PropertyValidator<T> implements Serializable {
         return new PropertyValidator<>(property);
     }
 
-    // This class has no getters for the state variables, only Properties. It does not follow the same convention
-    // as ConvertedProperty. Which convention makes more sense is up for debate.
-
     public @Nonnull Property<List<ValidationResult>> result() {
         return validationResult;
     }
 
-    public @Nonnull Property<Boolean> hasError() {
-        return hasError;
-    }
-
-    public @Nonnull Property<ErrorLevel> errorLevel() {
-        return errorLevel;
-    }
-
-    public @Nonnull Property<String> errorMessage() {
-        return errorMessage;
+    @Nonnull
+    @Override
+    public Property<ValidationState> validationState() {
+        return validationState;
     }
 
     public @Nonnull PropertyValidator<T> withValidator(@Nonnull Validator<T> validator) {
@@ -150,7 +149,10 @@ public class PropertyValidator<T> implements Serializable {
 
     private void validate(@Nonnull Collection<Validator<T>> validators) {
         var value = property.value();
-        validationResult.set(validators.stream().map(validator -> validator.apply(value, valueContext)).toList());
+        log.trace("Validating [{}] with validators {}", value, validators);
+        var result = validators.stream().map(validator -> validator.apply(value, valueContext)).toList();
+        log.trace("Validation result: {}", result);
+        validationResult.set(result, true);
     }
 
     private class ValidatorEntry implements Serializable {

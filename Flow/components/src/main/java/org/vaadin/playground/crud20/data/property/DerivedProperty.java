@@ -26,9 +26,10 @@ final class DerivedProperty<T, S> extends AbstractProperty<T> {
         var old = cachedValue;
         if (isEmpty) {
             cachedValue = emptyValue();
+            log.trace("Updating cached value to empty value [{}]", cachedValue);
         } else {
             cachedValue = mapper.apply(sourceValue);
-
+            log.trace("Updating cached value to [{}]", cachedValue);
         }
         notifyListeners(new PropertyValueChangeEvent<>(this, old, cachedValue));
     }

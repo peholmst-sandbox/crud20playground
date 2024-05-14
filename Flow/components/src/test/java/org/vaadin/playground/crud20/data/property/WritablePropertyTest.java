@@ -102,10 +102,10 @@ public class WritablePropertyTest {
         var property = WritableProperty.create(123);
         var converted = property.convert(new StringToIntegerConverter("error"));
         assertThat(converted.value()).isEqualTo("123");
-        assertThat(converted.conversionState().isError()).isFalse();
+        assertThat(converted.validationState().value().isSuccess()).isTrue();
         converted.set("456");
         assertThat(property.value()).isEqualTo(456);
-        assertThat(converted.conversionState().isError()).isFalse();
+        assertThat(converted.validationState().value().isSuccess()).isTrue();
     }
 
     @Test
@@ -114,20 +114,20 @@ public class WritablePropertyTest {
         var converted = property.convert(new StringToIntegerConverter("error"));
         converted.set("not a number");
         assertThat(converted.value()).isEqualTo("not a number");
-        assertThat(converted.conversionState().isError()).isTrue();
-        assertThat(converted.conversionState())
-                .asInstanceOf(type(ConvertedProperty.ConversionState.Failure.class))
-                .extracting(ConvertedProperty.ConversionState.Failure::errorMessage)
+        assertThat(converted.validationState().value().isError()).isTrue();
+        assertThat(converted.validationState().value())
+                .asInstanceOf(type(ValidationState.Failure.class))
+                .extracting(ValidationState.Failure::errorMessage)
                 .isEqualTo("error");
         assertThat(property.value()).isEqualTo(123);
     }
 
     @Test
-    void conversion_state_can_be_listened_to() {
+    void validation_state_can_be_listened_to() {
         var property = WritableProperty.create(123);
         var converted = property.convert(new StringToIntegerConverter("error"));
-        var event = new AtomicReference<PropertyValueChangeEvent<ConvertedProperty.ConversionState>>();
-        converted.conversionStateProperty().addListener(event::set);
+        var event = new AtomicReference<PropertyValueChangeEvent<ValidationState>>();
+        converted.validationState().addListener(event::set);
         converted.set("not a number");
         assertThat(event).hasValueSatisfying(e -> {
             assertThat(e.oldValue().isError()).isFalse();

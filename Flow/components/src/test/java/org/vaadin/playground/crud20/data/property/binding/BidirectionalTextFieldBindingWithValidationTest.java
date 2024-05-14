@@ -16,11 +16,11 @@ public class BidirectionalTextFieldBindingWithValidationTest {
         var validator = PropertyValidator.of(property).withValidator(new StringLengthValidator("error", 2, 10));
         var textField = new TextField();
         PropertyBinding.bindValueBidirectionally(property, textField);
-        PropertyBinding.bindValidationResult(validator, textField);
+        PropertyBinding.bindValidationState(validator, textField);
         {
             assertThat(textField.getValue()).isEqualTo("h");
             assertThat(textField.isInvalid()).isFalse();
-            assertThat(validator.errorLevel().isEmpty()).isTrue();
+            assertThat(validator.validationState().value().isUnknown()).isTrue();
         }
     }
 
@@ -30,7 +30,7 @@ public class BidirectionalTextFieldBindingWithValidationTest {
         var validator = PropertyValidator.of(property).withValidator(new StringLengthValidator("error", 2, 10));
         var textField = new TextField();
         PropertyBinding.bindValueBidirectionally(property, textField);
-        PropertyBinding.bindValidationResult(validator, textField);
+        PropertyBinding.bindValidationState(validator, textField);
         textField.setValue("h");
         {
             assertThat(textField.getValue()).isEqualTo("h");
@@ -56,12 +56,12 @@ public class BidirectionalTextFieldBindingWithValidationTest {
         var validator = PropertyValidator.of(property).withValidator(new StringLengthValidator("error", 2, 10));
         var textField = new TextField();
         PropertyBinding.bindValueBidirectionally(property, textField);
-        var binding = PropertyBinding.bindValidationResult(validator, textField);
+        var binding = PropertyBinding.bindValidationState(validator, textField);
         binding.remove();
         validator.validate();
         {
             assertThat(textField.isInvalid()).isFalse();
-            assertThat(textField.getErrorMessage()).isNull();
+            assertThat(textField.getErrorMessage()).isNullOrEmpty();
         }
     }
 }

@@ -1,0 +1,51 @@
+package org.vaadin.playground.crud20.data.property.binding;
+
+import com.vaadin.flow.component.HasValidation;
+import com.vaadin.flow.shared.Registration;
+import jakarta.annotation.Nonnull;
+import org.vaadin.playground.crud20.data.property.Property;
+import org.vaadin.playground.crud20.data.property.ValidationState;
+
+import java.util.Comparator;
+import java.util.List;
+
+import static java.util.Objects.requireNonNull;
+
+class ValidationStateBinding implements PropertyBinding {
+
+    private final List<Property<ValidationState>> properties;
+    private final List<Registration> registrations;
+    private final HasValidation hasValidation;
+
+    public ValidationStateBinding(@Nonnull List<Property<ValidationState>> properties,
+                                  @Nonnull HasValidation hasValidation) {
+        this.hasValidation = requireNonNull(hasValidation);
+        if (properties.isEmpty()) {
+            throw new IllegalArgumentException("At least one property must be provided");
+        }
+        this.properties = properties;
+        this.registrations = properties.stream().map(p -> p.addListener(event -> updateValidationState())).toList();
+        updateValidationState();
+    }
+
+    private void updateValidationState() {
+        var highestError = properties
+                .stream()
+                .map(Property::value)
+                .filter(ValidationState.Failure.class::isInstance)
+                .map(ValidationState.Failure.class::cast)
+                .max(Comparator.comparingInt(a -> a.errorLevel().intValue()));
+        highestError.ifPresentOrElse(failure -> {
+            hasValidation.setErrorMessage(failure.errorMessage());
+            hasValidation.setInvalid(failure.isError());
+        }, () -> {
+            hasValidation.setErrorMessage(null);
+            hasValidation.setInvalid(false);
+        });
+    }
+
+    @Override
+    public void remove() {
+        registrations.forEach(Registration::remove);
+    }
+}

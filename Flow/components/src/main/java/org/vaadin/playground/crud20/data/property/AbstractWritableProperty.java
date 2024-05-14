@@ -22,13 +22,16 @@ abstract class AbstractWritableProperty<T> extends AbstractProperty<T> implement
         return new DefaultConvertedProperty<>(this, converter);
     }
 
-    protected void doSet(T value) {
-        if (Objects.equals(this.value, value)) {
-            return;
+    protected boolean doSet(T value, boolean force) {
+        if (!force && Objects.equals(this.value, value)) {
+            log.trace("Ignoring setting value because current value [{}] is same as new value", value);
+            return false;
         }
+        log.trace("Setting new value to [{}] (force = {})", value, force);
         var old = this.value;
         this.value = value;
         notifyListeners(new PropertyValueChangeEvent<>(this, old, this.value));
+        return true;
     }
 
     @Override

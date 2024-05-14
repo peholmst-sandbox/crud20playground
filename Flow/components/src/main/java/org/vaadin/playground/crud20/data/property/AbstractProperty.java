@@ -7,6 +7,7 @@ import com.vaadin.flow.function.SerializableRunnable;
 import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
@@ -14,7 +15,7 @@ import java.util.*;
 import static java.util.Objects.requireNonNull;
 
 abstract class AbstractProperty<T> implements Property<T> {
-
+    protected final Logger log = LoggerFactory.getLogger(getClass());
     private final WeakHashMap<SerializableConsumer<PropertyValueChangeEvent<T>>, Void> weakListeners = new WeakHashMap<>();
     private final Set<SerializableConsumer<PropertyValueChangeEvent<T>>> listeners = new HashSet<>();
 
@@ -73,11 +74,13 @@ abstract class AbstractProperty<T> implements Property<T> {
     @Override
     @Nonnull
     public Registration addListener(@Nonnull SerializableConsumer<PropertyValueChangeEvent<T>> listener) {
+        log.trace("Adding listener {} with strong reference", listener);
         listeners.add(requireNonNull(listener));
         return () -> listeners.remove(listener);
     }
 
     public void addWeakListener(@Nonnull SerializableConsumer<PropertyValueChangeEvent<T>> listener) {
+        log.trace("Adding listener {} with weak reference", listener);
         weakListeners.put(requireNonNull(listener), null);
     }
 
@@ -92,16 +95,18 @@ abstract class AbstractProperty<T> implements Property<T> {
     }
 
     private void notifyListener(@Nonnull PropertyValueChangeEvent<T> event, @Nonnull SerializableConsumer<PropertyValueChangeEvent<T>> listener) {
+        log.trace("Notifying listener {} of event {}", listener, event);
         try {
             listener.accept(event);
         } catch (Exception ex) {
-            LoggerFactory.getLogger(Property.class).error("Error in listener", ex);
+            log.error("Error in listener", ex);
         }
     }
 
     @Override
     public void doIfPresent(@Nonnull SerializableConsumer<T> action) {
         if (isPresent()) {
+            log.trace("Invoking action {}", action);
             action.accept(value());
         }
     }
@@ -109,8 +114,10 @@ abstract class AbstractProperty<T> implements Property<T> {
     @Override
     public void doIfPresentOrElse(@Nonnull SerializableConsumer<T> action, @Nonnull SerializableRunnable emptyAction) {
         if (isPresent()) {
+            log.trace("Invoking action {}", action);
             action.accept(value());
         } else {
+            log.trace("Invoking empty action {}", emptyAction);
             emptyAction.run();
         }
     }
@@ -129,6 +136,7 @@ abstract class AbstractProperty<T> implements Property<T> {
         }
         return addListener(event -> {
             if (event.isPresent()) {
+                log.trace("Invoking action {} in response to event {}", action, event);
                 action.accept(event.value());
             }
         });
@@ -148,8 +156,10 @@ abstract class AbstractProperty<T> implements Property<T> {
         }
         return addListener(event -> {
             if (event.isPresent()) {
+                log.trace("Invoking action {} in response to event {}", action, event);
                 action.accept(event.value());
             } else {
+                log.trace("Invoking empty action {} in response to event {}", emptyAction, event);
                 emptyAction.run();
             }
         });

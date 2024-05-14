@@ -22,7 +22,7 @@ class DefaultWritableProperty<T> extends AbstractWritableProperty<T> implements 
     }
 
     @Override
-    public void set(T value) {
-        doSet(value);
+    public void set(T value, boolean force) {
+        doSet(value, force);
     }
 }

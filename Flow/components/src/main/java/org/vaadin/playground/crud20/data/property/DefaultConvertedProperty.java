@@ -1,5 +1,6 @@
 package org.vaadin.playground.crud20.data.property;
 
+import com.vaadin.flow.data.binder.ErrorLevel;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.function.SerializableConsumer;
@@ -14,7 +15,7 @@ class DefaultConvertedProperty<T, S> extends AbstractWritableProperty<T> impleme
 
     private final AbstractWritableProperty<S> source;
     private final Converter<T, S> converter;
-    private final WritableProperty<ConversionState> conversionState = WritableProperty.create();
+    private final WritableProperty<ValidationState> validationState = WritableProperty.create(new ValidationState.Unknown());
     private final T emptyValue;
     @SuppressWarnings("FieldCanBeLocal") // If used as a local field, the weak listener will be GC:d too early
     private final SerializableConsumer<PropertyValueChangeEvent<S>> onSourceValueChangeEvent = (event) -> updateLocalValue(event.value(), event.isEmpty());
@@ -30,11 +31,11 @@ class DefaultConvertedProperty<T, S> extends AbstractWritableProperty<T> impleme
 
     private void updateLocalValue(S sourceValue, boolean isEmpty) {
         if (isEmpty) {
-            doSet(emptyValue);
+            doSet(emptyValue, false);
         } else {
-            doSet(converter.convertToPresentation(sourceValue, valueContext));
+            doSet(converter.convertToPresentation(sourceValue, valueContext), false);
         }
-        conversionState.set(new ConversionState.Success());
+        validationState.set(new ValidationState.Success());
     }
 
     @Nonnull
@@ -44,18 +45,6 @@ class DefaultConvertedProperty<T, S> extends AbstractWritableProperty<T> impleme
         return this;
     }
 
-    @Nonnull
-    @Override
-    public ConversionState conversionState() {
-        return conversionState.value();
-    }
-
-    @Nonnull
-    @Override
-    public Property<ConversionState> conversionStateProperty() {
-        return conversionState;
-    }
-
     @Nullable
     @Override
     public T emptyValue() {
@@ -63,14 +52,27 @@ class DefaultConvertedProperty<T, S> extends AbstractWritableProperty<T> impleme
     }
 
     @Override
-    public void set(T value) {
-        doSet(value);
-        converter.convertToModel(value, valueContext).handle(
-                successfulValue -> {
-                    source.set(successfulValue);
-                    conversionState.set(new ConversionState.Success());
-                },
-                error -> conversionState.set(new ConversionState.Failure(error))
-        );
+    public void set(T value, boolean force) {
+        if (doSet(value, force)) {
+            log.trace("Attempting conversion of value [{}]", value);
+            converter.convertToModel(value, valueContext).handle(
+                    successfulValue -> {
+                        log.trace("Conversion was successful: [{}]", successfulValue);
+                        validationState.set(new ValidationState.Success());
+                        log.trace("Updating source property {} to [{}]", source, successfulValue);
+                        source.set(successfulValue);
+                    },
+                    error -> {
+                        log.trace("Conversion failed: {}", error);
+                        validationState.set(new ValidationState.Failure(ErrorLevel.ERROR, error));
+                    }
+            );
+        }
+    }
+
+    @Nonnull
+    @Override
+    public Property<ValidationState> validationState() {
+        return validationState;
     }
 }
