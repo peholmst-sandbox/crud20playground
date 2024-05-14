@@ -77,6 +77,27 @@ public class BidirectionalTextFieldBindingWithConversionTest {
     }
 
     @Test
+    void binding_can_be_disabled_and_enabled() {
+        var property = WritableProperty.<Integer>create();
+        var convertedProperty = property.convert(new StringToIntegerConverter("conversion error"));
+        var textField = new TextField();
+        PropertyBinding.bindValueBidirectionally(convertedProperty, textField);
+        var binding = PropertyBinding.bindValidationState(convertedProperty, textField);
+        binding.disable();
+        textField.setValue("this is not an integer");
+        {
+            assertThat(textField.isInvalid()).isFalse();
+            assertThat(textField.getErrorMessage()).isNullOrEmpty();
+            assertThat(convertedProperty.validationState().value().isError()).isTrue();
+        }
+        binding.enable();
+        {
+            assertThat(textField.isInvalid()).isTrue();
+            assertThat(textField.getErrorMessage()).isEqualTo("conversion error");
+        }
+    }
+
+    @Test
     void conversion_and_validation_can_be_used_together() {
         var property = WritableProperty.<Integer>create();
         var validator = PropertyValidator.of(property).withValidator(new IntegerRangeValidator("validation error", 0, 100));
@@ -85,43 +106,23 @@ public class BidirectionalTextFieldBindingWithConversionTest {
         PropertyBinding.bindValueBidirectionally(convertedProperty, textField);
         PropertyBinding.bindValidationState(List.of(convertedProperty, validator), textField);
 
-        System.out.println(">>> Setting to string value");
         textField.setValue("this is not an integer");
         {
-//            assertThat(convertedProperty.conversionState().isError()).isTrue();
-//            assertThat(convertedProperty.value()).isEqualTo("this is not an integer");
-//            assertThat(property.isEmpty()).isTrue();
-//            assertThat(validator.hasError().value()).isFalse();
             assertThat(textField.isInvalid()).isTrue();
             assertThat(textField.getErrorMessage()).isEqualTo("conversion error");
         }
-        System.out.println(">>> Setting to -1");
         textField.setValue("-1");
         {
-//            assertThat(convertedProperty.conversionState().isError()).isFalse();
-//            assertThat(convertedProperty.value()).isEqualTo("-1");
-//            assertThat(property.value()).isEqualTo(-1);
-//            assertThat(validator.hasError().value()).isTrue();
             assertThat(textField.isInvalid()).isTrue();
             assertThat(textField.getErrorMessage()).isEqualTo("validation error");
         }
-        System.out.println(">>> Setting to 101");
         textField.setValue("101");
         {
-//            assertThat(convertedProperty.conversionState().isError()).isFalse();
-//            assertThat(convertedProperty.value()).isEqualTo("101");
-//            assertThat(property.value()).isEqualTo(101);
-//            assertThat(validator.hasError().value()).isTrue();
             assertThat(textField.isInvalid()).isTrue();
             assertThat(textField.getErrorMessage()).isEqualTo("validation error");
         }
-        System.out.println(">>> Setting to 12");
         textField.setValue("12");
         {
-//            assertThat(convertedProperty.conversionState().isError()).isFalse();
-//            assertThat(convertedProperty.value()).isEqualTo("12");
-//            assertThat(property.value()).isEqualTo(12);
-//            assertThat(validator.hasError().value()).isFalse();
             assertThat(textField.isInvalid()).isFalse();
             assertThat(textField.getErrorMessage()).isNullOrEmpty();
         }

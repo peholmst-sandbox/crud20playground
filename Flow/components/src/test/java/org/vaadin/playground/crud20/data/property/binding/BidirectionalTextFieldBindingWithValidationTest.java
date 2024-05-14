@@ -64,4 +64,24 @@ public class BidirectionalTextFieldBindingWithValidationTest {
             assertThat(textField.getErrorMessage()).isNullOrEmpty();
         }
     }
+
+    @Test
+    void binding_can_be_disabled_and_enabled() {
+        var property = WritableProperty.create("");
+        var validator = PropertyValidator.of(property).withValidator(new StringLengthValidator("error", 2, 10));
+        var textField = new TextField();
+        PropertyBinding.bindValueBidirectionally(property, textField);
+        var binding = PropertyBinding.bindValidationState(validator, textField);
+        binding.disable();
+        validator.validate();
+        {
+            assertThat(textField.isInvalid()).isFalse();
+            assertThat(textField.getErrorMessage()).isNullOrEmpty();
+        }
+        binding.enable();
+        {
+            assertThat(textField.isInvalid()).isTrue();
+            assertThat(textField.getErrorMessage()).isEqualTo("error");
+        }
+    }
 }
