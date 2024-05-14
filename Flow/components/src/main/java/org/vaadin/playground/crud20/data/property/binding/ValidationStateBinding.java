@@ -16,6 +16,7 @@ class ValidationStateBinding implements PropertyBinding {
     private final List<Property<ValidationState>> properties;
     private final List<Registration> registrations;
     private final HasValidation hasValidation;
+    private boolean enabled = true;
 
     public ValidationStateBinding(@Nonnull List<Property<ValidationState>> properties,
                                   @Nonnull HasValidation hasValidation) {
@@ -29,6 +30,9 @@ class ValidationStateBinding implements PropertyBinding {
     }
 
     private void updateValidationState() {
+        if (!enabled) {
+            return;
+        }
         var highestError = properties
                 .stream()
                 .map(Property::value)
@@ -47,5 +51,16 @@ class ValidationStateBinding implements PropertyBinding {
     @Override
     public void remove() {
         registrations.forEach(Registration::remove);
+    }
+
+    @Override
+    public void enable() {
+        this.enabled = true;
+        updateValidationState();
+    }
+
+    @Override
+    public void disable() {
+        this.enabled = false;
     }
 }

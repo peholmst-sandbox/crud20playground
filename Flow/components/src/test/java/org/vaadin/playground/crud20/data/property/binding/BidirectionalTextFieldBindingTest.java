@@ -102,6 +102,25 @@ public class BidirectionalTextFieldBindingTest {
     }
 
     @Test
+    void bindings_can_be_disabled_and_enabled() {
+        var textField = new TextField();
+        var property = WritableProperty.create("hello");
+        var binding = PropertyBinding.bindValueBidirectionally(property, textField);
+        binding.disable();
+        property.set("world");
+        textField.setValue("foo");
+        {
+            assertThat(textField.getValue()).isEqualTo("foo");
+            assertThat(property.value()).isEqualTo("world");
+        }
+        binding.enable();
+        {
+            assertThat(textField.getValue()).isEqualTo("world");
+            assertThat(property.value()).isEqualTo("world");
+        }
+    }
+
+    @Test
     void bindings_can_be_removed() {
         var textField = new TextField();
         var property = WritableProperty.create("hello");
