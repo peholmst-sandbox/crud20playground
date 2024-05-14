@@ -9,6 +9,8 @@ public interface ConvertedProperty<T> extends WritableProperty<T> {
     @Nonnull
     ConvertedProperty<T> withValueContext(@Nullable ValueContext valueContext);
 
+    // Not sure whether it makes sense to have the conversion state available both as a property and a method.
+
     @Nonnull
     ConversionState conversionState();
 
