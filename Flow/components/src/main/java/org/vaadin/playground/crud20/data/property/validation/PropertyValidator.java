@@ -40,6 +40,9 @@ public class PropertyValidator<T> implements Serializable {
         return new PropertyValidator<>(property);
     }
 
+    // This class has no getters for the state variables, only Properties. It does not follow the same convention
+    // as ConvertedProperty. Which convention makes more sense is up for debate.
+
     public @Nonnull Property<List<ValidationResult>> result() {
         return validationResult;
     }
