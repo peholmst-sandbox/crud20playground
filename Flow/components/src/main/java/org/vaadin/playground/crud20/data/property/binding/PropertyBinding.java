@@ -1,9 +1,11 @@
 package org.vaadin.playground.crud20.data.property.binding;
 
+import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.Nonnull;
 import org.vaadin.playground.crud20.data.property.WritableProperty;
+import org.vaadin.playground.crud20.data.property.validation.PropertyValidator;
 
 public interface PropertyBinding extends Registration {
 
@@ -21,7 +23,7 @@ public interface PropertyBinding extends Registration {
 //        throw new UnsupportedOperationException("Not yet implemented"); // TODO Implement me
 //    }
 
-//    static @Nonnull PropertyBinding bindValidationResult(@Nonnull PropertyValidator<?> propertyValidator, @Nonnull HasValidation hasValidation) {
-//        throw new UnsupportedOperationException("Not yet implemented"); // TODO Implement me
-//    }
+    static @Nonnull PropertyBinding bindValidationResult(@Nonnull PropertyValidator<?> propertyValidator, @Nonnull HasValidation hasValidation) {
+        return new ValidationResultBinding(propertyValidator, hasValidation);
+    }
 }
