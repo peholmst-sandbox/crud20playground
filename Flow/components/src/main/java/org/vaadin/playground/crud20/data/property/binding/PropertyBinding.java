@@ -6,6 +6,7 @@ import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.Nonnull;
 import org.vaadin.playground.crud20.data.property.HasValidationState;
+import org.vaadin.playground.crud20.data.property.Property;
 import org.vaadin.playground.crud20.data.property.WritableProperty;
 
 import java.util.List;
@@ -17,9 +18,29 @@ public interface PropertyBinding extends Registration {
         return this;
     }
 
+    default @Nonnull PropertyBinding rebindOnAttach(@Nonnull Component component) {
+        component.addAttachListener(event -> bind());
+        return this;
+    }
+
+    void bind();
+
+    /**
+     * @deprecated Use {@link #bind()} instead. This method was created when it was only possible to remove a binding, not re-bind it.
+     */
+    @Deprecated
     void enable();
 
+    /**
+     * @deprecated Use {@link #remove()} instead. This method was created when it was only possible to remove a binding, not re-bind it.
+     */
+    @Deprecated
     void disable();
+
+
+    static <T> @Nonnull PropertyBinding bindValue(@Nonnull Property<T> property, @Nonnull HasValue<? extends HasValue.ValueChangeEvent<T>, T> hasValue) {
+        return new PropertyHasValueBinding<>(property, hasValue);
+    }
 
     static <T> @Nonnull PropertyBinding bindValueBidirectionally(@Nonnull WritableProperty<T> property, @Nonnull HasValue<? extends HasValue.ValueChangeEvent<T>, T> hasValue) {
         return new WritablePropertyHasValueBinding<>(property, hasValue);
@@ -34,5 +55,5 @@ public interface PropertyBinding extends Registration {
         return new ValidationStateBinding(hasValidationStates.stream().map(HasValidationState::validationState).toList(), hasValidation);
     }
 
-    // Make other bindings for enabled, readOnly, visible, CSS classNames, etc.
+    // TODO Make other bindings for enabled, readOnly, visible, CSS classNames, etc.
 }

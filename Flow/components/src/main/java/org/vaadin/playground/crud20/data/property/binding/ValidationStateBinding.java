@@ -14,7 +14,7 @@ import static java.util.Objects.requireNonNull;
 class ValidationStateBinding implements PropertyBinding {
 
     private final List<Property<ValidationState>> properties;
-    private final List<Registration> registrations;
+    private List<Registration> registrations;
     private final HasValidation hasValidation;
     private boolean enabled = true;
 
@@ -25,8 +25,7 @@ class ValidationStateBinding implements PropertyBinding {
             throw new IllegalArgumentException("At least one property must be provided");
         }
         this.properties = properties;
-        this.registrations = properties.stream().map(p -> p.addListener(event -> updateValidationState())).toList();
-        updateValidationState();
+        bind();
     }
 
     private void updateValidationState() {
@@ -50,7 +49,18 @@ class ValidationStateBinding implements PropertyBinding {
 
     @Override
     public void remove() {
-        registrations.forEach(Registration::remove);
+        if (registrations != null) {
+            registrations.forEach(Registration::remove);
+            registrations = null;
+        }
+    }
+
+    @Override
+    public void bind() {
+        if (this.registrations == null) {
+            this.registrations = properties.stream().map(p -> p.addListener(event -> updateValidationState())).toList();
+            updateValidationState();
+        }
     }
 
     @Override

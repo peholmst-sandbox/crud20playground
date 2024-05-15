@@ -6,6 +6,8 @@ import jakarta.annotation.Nullable;
 
 public interface ConvertedProperty<T> extends WritableProperty<T>, HasValidationState {
 
+    // TODO Make it possible to plug in a strategy for handling conversion errors.
+
     @Nonnull
     ConvertedProperty<T> withValueContext(@Nullable ValueContext valueContext);
 }
