@@ -94,12 +94,6 @@ abstract class AbstractRecordProperties<RECORD extends Record> implements Record
         return (WritableProperty<T>) propertyMap.get(recordProperty); // Should never be null because RecordPropertyDefinition checks for existence
     }
 
-    @Nonnull
-    @Override
-    public <T> WritableProperty<T> forProperty(@Nonnull String propertyName, @Nonnull Class<T> propertyType) {
-        return forProperty(new RecordPropertyDefinition<>(recordType, propertyName, propertyType));
-    }
-
     @SuppressWarnings("unchecked")
     @Nonnull
     @Override
@@ -109,19 +103,14 @@ abstract class AbstractRecordProperties<RECORD extends Record> implements Record
 
     @Nonnull
     @Override
-    public <T extends Record> RecordProperties<T> forRecordProperty(@Nonnull String propertyName, @Nonnull Class<T> propertyType) {
-        return forRecordProperty(new RecordPropertyDefinition<>(recordType, propertyName, propertyType));
-    }
-
-    @Nonnull
-    @Override
     public <T> BeanProperties<T> forBeanProperty(@Nonnull RecordPropertyDefinition<RECORD, T> recordProperty) {
         throw new UnsupportedOperationException("not implemented yet");
     }
 
+    @Nonnull
     @Override
-    public @Nonnull <T> BeanProperties<T> forBeanProperty(@Nonnull String propertyName, @Nonnull Class<T> propertyType) {
-        return forBeanProperty(new RecordPropertyDefinition<>(recordType, propertyName, propertyType));
+    public <T> RecordPropertyDefinition<RECORD, T> getPropertyDefinition(@Nonnull String propertyName, @Nonnull Class<T> propertyType) {
+        return new RecordPropertyDefinition<>(recordType, propertyName, propertyType);
     }
 
     static class PropertyBackedRecordProperties<RECORD extends Record> extends AbstractRecordProperties<RECORD> {
