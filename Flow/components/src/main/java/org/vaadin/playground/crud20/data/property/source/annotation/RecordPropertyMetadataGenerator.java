@@ -131,7 +131,8 @@ public class RecordPropertyMetadataGenerator extends AbstractProcessor {
                 out.println();
             }
 
-            out.println("import org.vaadin.playground.crud20.data.property.source.BeanPropertyDefinition;");
+            out.println("import org.vaadin.playground.crud20.data.property.source.ReadOnlyBeanPropertyDefinition;");
+            out.println("import org.vaadin.playground.crud20.data.property.source.WritableBeanPropertyDefinition;");
             out.println();
 
             out.print("public final class ");
@@ -152,14 +153,19 @@ public class RecordPropertyMetadataGenerator extends AbstractProcessor {
             // Definitions
             {
                 for (var beanProperty : beanProperties) {
+                    var definitionType = beanProperty.setter == null ? "ReadOnlyBeanPropertyDefinition" : "WritableBeanPropertyDefinition";
                     var type = getObjectType(beanProperty.type);
-                    out.print("    public static final BeanPropertyDefinition<");
+                    out.print("    public static final ");
+                    out.print(definitionType);
+                    out.print("<");
                     out.print(className);
                     out.print(", ");
                     out.print(type);
                     out.print("> ");
                     out.print(beanProperty.name);
-                    out.print(" = new BeanPropertyDefinition<>(");
+                    out.print(" = new ");
+                    out.print(definitionType);
+                    out.print("<>(");
                     out.print(className);
                     out.print(".class, \"");
                     out.print(beanProperty.name);
@@ -172,8 +178,6 @@ public class RecordPropertyMetadataGenerator extends AbstractProcessor {
                         out.print("\"");
                         out.print(beanProperty.setter.getSimpleName());
                         out.print("\"");
-                    } else {
-                        out.print("null");
                     }
                     out.println(");");
                 }
