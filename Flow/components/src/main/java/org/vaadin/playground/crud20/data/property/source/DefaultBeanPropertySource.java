@@ -1,64 +1,44 @@
 package org.vaadin.playground.crud20.data.property.source;
 
-import com.vaadin.flow.function.SerializableBiConsumer;
-import com.vaadin.flow.function.SerializableFunction;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.vaadin.playground.crud20.data.property.Property;
+import org.vaadin.playground.crud20.data.property.PropertyValueChangeEvent;
 import org.vaadin.playground.crud20.data.property.WritableProperty;
 
-class DefaultBeanPropertySource<BEAN> implements BeanPropertySource<BEAN> {
+class DefaultBeanPropertySource<BEAN> extends AbstractBeanProperties<BEAN> implements BeanPropertySource<BEAN> {
 
-    private final Class<BEAN> beanType;
+    private final WritableProperty<Boolean> dirty = WritableProperty.create(false);
 
     DefaultBeanPropertySource(@Nonnull Class<BEAN> beanType) {
-        this.beanType = beanType;
+        super(beanType);
+    }
+
+    @Override
+    protected void handlePropertyChangeEventWhenNotReading(@Nonnull PropertyValueChangeEvent<?> event) {
+        dirty.set(true);
     }
 
     @Nonnull
     @Override
     public BEAN write(@Nullable BEAN target) {
-        return null;
-    }
-
-    @Nonnull
-    @Override
-    public <T> Property<T> forProperty(@Nonnull SerializableFunction<BEAN, T> getter) {
-        return null;
-    }
-
-    @Nonnull
-    @Override
-    public <T> WritableProperty<T> forProperty(@Nonnull SerializableFunction<BEAN, T> getter, @Nonnull SerializableBiConsumer<BEAN, T> setter) {
-        return null;
-    }
-
-    @Nonnull
-    @Override
-    public <T extends Record> RecordProperties<T> forRecordProperty(@Nonnull SerializableFunction<BEAN, T> getter, @Nonnull SerializableBiConsumer<BEAN, T> setter) {
-        return null;
-    }
-
-    @Nonnull
-    @Override
-    public <T> BeanProperties<T> forBeanProperty(@Nonnull SerializableFunction<BEAN, T> getter) {
-        return null;
-    }
-
-    @Nonnull
-    @Override
-    public <T> BeanProperties<T> forBeanProperty(@Nonnull SerializableFunction<BEAN, T> getter, @Nonnull SerializableBiConsumer<BEAN, T> setter) {
-        return null;
+        if (target == null) {
+            return createBean();
+        } else {
+            updateBean(target);
+            return target;
+        }
     }
 
     @Nonnull
     @Override
     public Property<Boolean> dirty() {
-        return null;
+        return dirty;
     }
 
     @Override
     public void read(@Nonnull BEAN source) {
-
+        readBean(source);
+        dirty.set(false);
     }
 }
