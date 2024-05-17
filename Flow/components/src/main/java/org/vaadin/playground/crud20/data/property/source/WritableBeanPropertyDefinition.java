@@ -1,6 +1,8 @@
 package org.vaadin.playground.crud20.data.property.source;
 
+import com.google.common.base.Defaults;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import java.lang.reflect.Method;
 
@@ -21,6 +23,22 @@ public final class WritableBeanPropertyDefinition<BEAN, T> extends BeanPropertyD
         super(beanClass, propertyName, propertyType);
         this.setterName = "set" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1);
         setter();
+    }
+
+    void writeValueTo(@Nonnull BEAN bean, @Nullable T value) {
+        try {
+            setter().invoke(bean, unwrapIfNecessary(value));
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not write to bean", e);
+        }
+    }
+
+    @Nullable
+    T unwrapIfNecessary(@Nullable T value) {
+        if (propertyType.isPrimitive() && value == null) {
+            return Defaults.defaultValue(propertyType); // This is using Google Guava. Could be replaced by an inline statement.
+        }
+        return value;
     }
 
     private @Nonnull Method setter() {

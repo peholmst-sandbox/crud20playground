@@ -154,13 +154,13 @@ public class RecordPropertyMetadataGenerator extends AbstractProcessor {
             {
                 for (var beanProperty : beanProperties) {
                     var definitionType = beanProperty.setter == null ? "ReadOnlyBeanPropertyDefinition" : "WritableBeanPropertyDefinition";
-                    var type = getObjectType(beanProperty.type);
+                    var objectType = getObjectType(beanProperty.type);
                     out.print("    public static final ");
                     out.print(definitionType);
                     out.print("<");
                     out.print(className);
                     out.print(", ");
-                    out.print(type);
+                    out.print(objectType);
                     out.print("> ");
                     out.print(beanProperty.name);
                     out.print(" = new ");
@@ -170,8 +170,12 @@ public class RecordPropertyMetadataGenerator extends AbstractProcessor {
                     out.print(".class, \"");
                     out.print(beanProperty.name);
                     out.print("\", ");
-                    out.print(type);
-                    out.print(".class, \"");
+                    out.print(objectType);
+                    if (beanProperty.type.getKind().isPrimitive()) {
+                        out.print(".TYPE, \"");
+                    } else {
+                        out.print(".class, \"");
+                    }
                     out.print(beanProperty.getter.getSimpleName());
                     out.print("\", ");
                     if (beanProperty.setter != null) {
@@ -211,13 +215,15 @@ public class RecordPropertyMetadataGenerator extends AbstractProcessor {
         var map = new HashMap<String, BeanProperty>();
         for (var element : gettersAndSetters) {
             var simpleName = element.getSimpleName().toString();
-            var propertyName = fixPropertyNameCase(simpleName.substring(3));
             // gettersAndSetters is ordered so getters always show up before setters
             if (simpleName.startsWith("get")) {
+                var propertyName = fixPropertyNameCase(simpleName.substring(3));
                 map.put(propertyName, new BeanProperty(propertyName, element.getReturnType(), element, null));
             } else if (simpleName.startsWith("is")) {
+                var propertyName = fixPropertyNameCase(simpleName.substring(2));
                 map.put(propertyName, new BeanProperty(propertyName, element.getReturnType(), element, null));
             } else if (simpleName.startsWith("set")) {
+                var propertyName = fixPropertyNameCase(simpleName.substring(3));
                 var property = map.get(propertyName);
                 if (property == null) {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "Setter without getter: " + element, element);

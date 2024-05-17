@@ -5,9 +5,8 @@ import org.vaadin.playground.crud20.data.property.source.annotation.GenerateProp
 @GeneratePropertyMetadata
 public class SimpleBean {
     private String stringProperty;
-    private Integer integerProperty;
-    private Boolean booleanProperty;
-    private long longProperty;
+    private int integerProperty;
+    private boolean booleanProperty;
 
     public String getStringProperty() {
         return stringProperty;
@@ -17,27 +16,19 @@ public class SimpleBean {
         this.stringProperty = stringProperty;
     }
 
-    public Integer getIntegerProperty() {
+    public int getIntegerProperty() {
         return integerProperty;
     }
 
-    public void setIntegerProperty(Integer integerProperty) {
+    public void setIntegerProperty(int integerProperty) {
         this.integerProperty = integerProperty;
     }
 
-    public Boolean getBooleanProperty() {
+    public boolean isBooleanProperty() {
         return booleanProperty;
     }
 
-    public void setBooleanProperty(Boolean booleanProperty) {
+    public void setBooleanProperty(boolean booleanProperty) {
         this.booleanProperty = booleanProperty;
-    }
-
-    public long getLongProperty() {
-        return longProperty;
-    }
-
-    public void setLongProperty(long longProperty) {
-        this.longProperty = longProperty;
     }
 }

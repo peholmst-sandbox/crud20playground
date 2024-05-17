@@ -1,6 +1,7 @@
 package org.vaadin.playground.crud20.data.property.source;
 
 import com.vaadin.flow.function.SerializableBiConsumer;
+import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableFunction;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -9,23 +10,21 @@ import org.vaadin.playground.crud20.data.property.PropertyValueChangeEvent;
 import org.vaadin.playground.crud20.data.property.WritableProperty;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+
+import static java.util.Objects.requireNonNull;
 
 abstract class AbstractBeanProperties<BEAN> implements BeanProperties<BEAN> {
 
-    /*
-        The problem with using only getters and setters is that you can't use them as keys in a map.
-        That means that if you call forProperty two times with the exact same methods, you will end up with
-        two property entries. You could fix this with a metadata generator, or just make sure the users know
-        about this quirk.
-     */
+    private final Class<BEAN> beanType;
     @SuppressWarnings("rawtypes")
-    private final List<PropertyEntry> propertyEntries = new ArrayList<>();
+    private final Map<BeanPropertyDefinition, WritableProperty> propertyMap = new HashMap<>();
     private final Constructor<BEAN> constructor;
     private boolean isReading = false;
 
     public AbstractBeanProperties(@Nonnull Class<BEAN> beanType) {
+        this.beanType = requireNonNull(beanType);
         try {
             constructor = beanType.getConstructor();
         } catch (NoSuchMethodException ex) {
@@ -43,51 +42,23 @@ abstract class AbstractBeanProperties<BEAN> implements BeanProperties<BEAN> {
         }
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    protected void updateBean(@Nonnull BEAN bean) {
-        propertyEntries.forEach(entry -> {
-            if (entry instanceof PropertyEntry.WritablePropertyEntry writableEntry) {
-                // Potential pitfall: if the bean setter wants a primitive and the Property contains null. By looking at
-                // the setter reference alone there is no way of discovering whether the parameter is a boxed type
-                // or a primitive type. The workaround is to have the user provide a custom non-null empty value for the property.
-                writableEntry.setter().accept(bean, writableEntry.property().value());
-            }
-        });
-    }
-
+    @SuppressWarnings("unchecked")
     @Nonnull
     @Override
-    public <T> Property<T> forProperty(@Nonnull SerializableFunction<BEAN, T> getter) {
-        return forPropertyWithEmptyValue(getter, null);
+    public <T> Property<T> forProperty(@Nonnull ReadOnlyBeanPropertyDefinition<BEAN, T> beanProperty) {
+        return propertyMap.computeIfAbsent(beanProperty, prop -> createProperty());
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings("unchecked")
     @Nonnull
     @Override
-    public <T> Property<T> forPropertyWithEmptyValue(@Nonnull SerializableFunction<BEAN, T> getter, @Nullable T emptyValue) {
-        var entry = new PropertyEntry.ReadOnlyPropertyEntry(createProperty(null), getter);
-        propertyEntries.add(entry);
-        return entry.property;
-    }
-
-    @Nonnull
-    @Override
-    public <T> WritableProperty<T> forProperty(@Nonnull SerializableFunction<BEAN, T> getter, @Nonnull SerializableBiConsumer<BEAN, T> setter) {
-        return forPropertyWithEmptyValue(getter, setter, null);
-    }
-
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    @Nonnull
-    @Override
-    public <T> WritableProperty<T> forPropertyWithEmptyValue(@Nonnull SerializableFunction<BEAN, T> getter, @Nonnull SerializableBiConsumer<BEAN, T> setter, @Nullable T emptyValue) {
-        var entry = new PropertyEntry.WritablePropertyEntry(createProperty(emptyValue), getter, setter);
-        propertyEntries.add(entry);
-        return entry.property;
+    public <T> WritableProperty<T> forProperty(@Nonnull WritableBeanPropertyDefinition<BEAN, T> beanProperty) {
+        return propertyMap.computeIfAbsent(beanProperty, prop -> createProperty());
     }
 
     @SuppressWarnings("rawtypes")
-    private WritableProperty createProperty(Object emptyValue) {
-        var property = WritableProperty.createWithEmptyValue(emptyValue);
+    private WritableProperty createProperty() {
+        var property = WritableProperty.create();
         property.addListener(this::handlePropertyChangeEvent);
         return property;
     }
@@ -104,20 +75,32 @@ abstract class AbstractBeanProperties<BEAN> implements BeanProperties<BEAN> {
 
     @Nonnull
     @Override
-    public <T extends Record> RecordProperties<T> forRecordProperty(@Nonnull SerializableFunction<BEAN, T> getter, @Nonnull SerializableBiConsumer<BEAN, T> setter) {
-        throw new UnsupportedOperationException("not implemented");
+    public <T extends Record> RecordProperties<T> forRecordProperty(@Nonnull WritableBeanPropertyDefinition<BEAN, T> beanProperty) {
+        return null;
     }
 
     @Nonnull
     @Override
-    public <T> BeanProperties<T> forBeanProperty(@Nonnull SerializableFunction<BEAN, T> getter) {
-        throw new UnsupportedOperationException("not implemented");
+    public <T> BeanProperties<T> forBeanProperty(@Nonnull ReadOnlyBeanPropertyDefinition<BEAN, T> beanProperty) {
+        return null;
     }
 
     @Nonnull
     @Override
-    public <T> BeanProperties<T> forBeanProperty(@Nonnull SerializableFunction<BEAN, T> getter, @Nonnull SerializableBiConsumer<BEAN, T> setter) {
-        throw new UnsupportedOperationException("not implemented");
+    public <T> BeanProperties<T> forBeanProperty(@Nonnull WritableBeanPropertyDefinition<BEAN, T> beanProperty) {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public <T> ReadOnlyBeanPropertyDefinition<BEAN, T> getReadOnlyPropertyDefinition(@Nonnull String propertyName, @Nonnull Class<T> propertyType) {
+        return new ReadOnlyBeanPropertyDefinition<>(beanType, propertyName, propertyType);
+    }
+
+    @Nonnull
+    @Override
+    public <T> WritableBeanPropertyDefinition<BEAN, T> getWritablePropertyDefinition(@Nonnull String propertyName, @Nonnull Class<T> propertyType) {
+        return new WritableBeanPropertyDefinition<>(beanType, propertyName, propertyType);
     }
 
     @SuppressWarnings("unchecked")
@@ -125,13 +108,23 @@ abstract class AbstractBeanProperties<BEAN> implements BeanProperties<BEAN> {
         isReading = true;
         try {
             if (source == null) {
-                propertyEntries.forEach(entry -> entry.property().clear());
+                propertyMap.values().forEach(WritableProperty::clear);
             } else {
-                propertyEntries.forEach(entry -> entry.property().set(entry.getter().apply(source)));
+                propertyMap.forEach((definition, property) -> property.set(definition.readValueFrom(source)));
             }
         } finally {
             isReading = false;
         }
+    }
+
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    protected void updateBean(@Nonnull BEAN bean) {
+        propertyMap.forEach((definition, property) -> {
+            if (definition instanceof WritableBeanPropertyDefinition writableBeanPropertyDefinition) {
+                writableBeanPropertyDefinition.writeValueTo(bean, property.value());
+            }
+        });
     }
 
     sealed interface PropertyEntry<BEAN, T> {
@@ -151,5 +144,20 @@ abstract class AbstractBeanProperties<BEAN> implements BeanProperties<BEAN> {
         WritableProperty<T> property();
 
         SerializableFunction<BEAN, T> getter();
+    }
+
+    static class PropertyBackedBeanProperties<BEAN> extends AbstractBeanProperties<BEAN> {
+
+        private final Property<BEAN> sourceProperty;
+        private final SerializableConsumer<PropertyValueChangeEvent<BEAN>> onSourcePropertyChange = (event) -> {
+
+        };
+
+        public PropertyBackedBeanProperties(@Nonnull Class<BEAN> beanType, @Nonnull Property<BEAN> sourceProperty) {
+            super(beanType);
+            this.sourceProperty = requireNonNull(sourceProperty);
+            this.sourceProperty.addWeakListener(onSourcePropertyChange);
+        }
+
     }
 }
