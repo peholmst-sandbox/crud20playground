@@ -71,6 +71,10 @@ public final class RecordPropertyDefinition<RECORD extends Record, T> implements
                 .orElseThrow(() -> new IllegalArgumentException("No such property: " + propertyName));
     }
 
+    public @Nonnull Class<T> propertyType() {
+        return propertyType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
