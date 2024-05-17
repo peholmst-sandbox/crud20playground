@@ -177,9 +177,9 @@ public class RecordPropertyMetadataGenerator extends AbstractProcessor {
                         out.print(".class, \"");
                     }
                     out.print(beanProperty.getter.getSimpleName());
-                    out.print("\", ");
+                    out.print("\"");
                     if (beanProperty.setter != null) {
-                        out.print("\"");
+                        out.print(", \"");
                         out.print(beanProperty.setter.getSimpleName());
                         out.print("\"");
                     }

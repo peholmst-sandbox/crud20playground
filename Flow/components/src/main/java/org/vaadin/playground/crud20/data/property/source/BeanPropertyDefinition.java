@@ -54,6 +54,15 @@ public sealed abstract class BeanPropertyDefinition<BEAN, T> implements Serializ
         }
     }
 
+    public @Nonnull Class<T> propertyType() {
+        return propertyType;
+    }
+
+    @Override
+    public String toString() {
+        return "%s{beanClass=%s, propertyName='%s', propertyType=%s}".formatted(getClass().getSimpleName(), beanClass.getName(), propertyName, propertyType.getName());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

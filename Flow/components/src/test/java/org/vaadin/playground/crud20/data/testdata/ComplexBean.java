@@ -3,11 +3,13 @@ package org.vaadin.playground.crud20.data.testdata;
 import org.vaadin.playground.crud20.data.property.source.annotation.GeneratePropertyMetadata;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @GeneratePropertyMetadata
 public class ComplexBean {
     private LocalDateTime localDateTimeProperty;
     private SimpleBean beanProperty;
+    private final SimpleBean readonlyBeanProperty = new SimpleBean();
     private DomainPrimitive domainPrimitiveProperty;
     private SimpleRecord recordProperty;
 
@@ -27,6 +29,10 @@ public class ComplexBean {
         this.beanProperty = beanProperty;
     }
 
+    public SimpleBean getReadonlyBeanProperty() {
+        return readonlyBeanProperty;
+    }
+
     public DomainPrimitive getDomainPrimitiveProperty() {
         return domainPrimitiveProperty;
     }
@@ -41,5 +47,29 @@ public class ComplexBean {
 
     public void setRecordProperty(SimpleRecord recordProperty) {
         this.recordProperty = recordProperty;
+    }
+
+    @Override
+    public String toString() {
+        return "ComplexBean{" +
+                "localDateTimeProperty=" + localDateTimeProperty +
+                ", beanProperty=" + beanProperty +
+                ", readonlyBeanProperty=" + readonlyBeanProperty +
+                ", domainPrimitiveProperty=" + domainPrimitiveProperty +
+                ", recordProperty=" + recordProperty +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ComplexBean that = (ComplexBean) o;
+        return Objects.equals(localDateTimeProperty, that.localDateTimeProperty) && Objects.equals(beanProperty, that.beanProperty) && Objects.equals(readonlyBeanProperty, that.readonlyBeanProperty) && Objects.equals(domainPrimitiveProperty, that.domainPrimitiveProperty) && Objects.equals(recordProperty, that.recordProperty);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(localDateTimeProperty, beanProperty, readonlyBeanProperty, domainPrimitiveProperty, recordProperty);
     }
 }

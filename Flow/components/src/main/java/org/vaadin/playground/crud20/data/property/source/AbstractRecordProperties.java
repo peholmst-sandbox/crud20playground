@@ -65,11 +65,11 @@ abstract class AbstractRecordProperties<RECORD extends Record> implements Record
         }
     }
 
-    protected Optional<RECORD> createRecordIfNotEmpty() {
-        if (propertyMap.values().stream().allMatch(Property::isEmpty)) {
-            return Optional.empty();
-        } else {
+    protected @Nonnull Optional<RECORD> createRecordIfNotEmpty() {
+        if (propertyMap.values().stream().anyMatch(Property::isPresent)) {
             return Optional.of(createRecord());
+        } else {
+            return Optional.empty();
         }
     }
 
@@ -104,7 +104,7 @@ abstract class AbstractRecordProperties<RECORD extends Record> implements Record
     @Nonnull
     @Override
     public <T> BeanProperties<T> forBeanProperty(@Nonnull RecordPropertyDefinition<RECORD, T> recordProperty) {
-        throw new UnsupportedOperationException("not implemented yet");
+        throw new UnsupportedOperationException("not implemented yet"); // TODO Implement me! Reuse code from AbstractBeanProperties
     }
 
     @Nonnull

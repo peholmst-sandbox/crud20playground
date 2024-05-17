@@ -1,10 +1,10 @@
 package org.vaadin.playground.crud20.data.property.source;
 
-import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.function.SerializableConsumer;
-import com.vaadin.flow.function.SerializableFunction;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vaadin.playground.crud20.data.property.Property;
 import org.vaadin.playground.crud20.data.property.PropertyValueChangeEvent;
 import org.vaadin.playground.crud20.data.property.WritableProperty;
@@ -17,13 +17,20 @@ import static java.util.Objects.requireNonNull;
 
 abstract class AbstractBeanProperties<BEAN> implements BeanProperties<BEAN> {
 
+    protected final Logger log = LoggerFactory.getLogger(getClass());
     private final Class<BEAN> beanType;
     @SuppressWarnings("rawtypes")
     private final Map<BeanPropertyDefinition, WritableProperty> propertyMap = new HashMap<>();
+    @SuppressWarnings("rawtypes")
+    private final Map<BeanPropertyDefinition, PropertyBackedBeanProperties> beanPropertyMap = new HashMap<>();
+    @SuppressWarnings("rawtypes")
+    private final Map<BeanPropertyDefinition, AbstractRecordProperties.PropertyBackedRecordProperties> recordPropertyMap = new HashMap<>();
     private final Constructor<BEAN> constructor;
     private boolean isReading = false;
 
     public AbstractBeanProperties(@Nonnull Class<BEAN> beanType) {
+        // TODO Consider introspecting the beanType class and generating properties for all getters and setters.
+        //  That way, the behavior would be the same as for records.
         this.beanType = requireNonNull(beanType);
         try {
             constructor = beanType.getConstructor();
@@ -40,6 +47,10 @@ abstract class AbstractBeanProperties<BEAN> implements BeanProperties<BEAN> {
         } catch (Exception ex) {
             throw new IllegalStateException("Failed to create bean", ex);
         }
+    }
+
+    protected boolean isEmpty() {
+        return propertyMap.values().stream().noneMatch(Property::isPresent);
     }
 
     @SuppressWarnings("unchecked")
@@ -73,22 +84,25 @@ abstract class AbstractBeanProperties<BEAN> implements BeanProperties<BEAN> {
         // NOP, should be overridden
     }
 
+    @SuppressWarnings("unchecked")
     @Nonnull
     @Override
     public <T extends Record> RecordProperties<T> forRecordProperty(@Nonnull WritableBeanPropertyDefinition<BEAN, T> beanProperty) {
-        return null;
+        return recordPropertyMap.computeIfAbsent(beanProperty, prop -> new AbstractRecordProperties.PropertyBackedRecordProperties<>(beanProperty.propertyType, forProperty(beanProperty)));
     }
 
+    @SuppressWarnings("unchecked")
     @Nonnull
     @Override
     public <T> BeanProperties<T> forBeanProperty(@Nonnull ReadOnlyBeanPropertyDefinition<BEAN, T> beanProperty) {
-        return null;
+        return beanPropertyMap.computeIfAbsent(beanProperty, prop -> new PropertyBackedBeanProperties<>(beanProperty.propertyType(), forProperty(beanProperty)));
     }
 
+    @SuppressWarnings("unchecked")
     @Nonnull
     @Override
     public <T> BeanProperties<T> forBeanProperty(@Nonnull WritableBeanPropertyDefinition<BEAN, T> beanProperty) {
-        return null;
+        return beanPropertyMap.computeIfAbsent(beanProperty, prop -> new PropertyBackedBeanProperties<>(beanProperty.propertyType, forProperty(beanProperty)));
     }
 
     @Nonnull
@@ -120,37 +134,37 @@ abstract class AbstractBeanProperties<BEAN> implements BeanProperties<BEAN> {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     protected void updateBean(@Nonnull BEAN bean) {
+        log.trace("Updating bean {}", bean);
         propertyMap.forEach((definition, property) -> {
             if (definition instanceof WritableBeanPropertyDefinition writableBeanPropertyDefinition) {
+                log.trace("Writing value to bean: {} = [{}]", definition, property.value());
                 writableBeanPropertyDefinition.writeValueTo(bean, property.value());
+            } else {
+                var readOnlyBean = definition.readValueFrom(bean);
+                if (readOnlyBean == null) {
+                    log.warn("Bean property {} is null, cannot update in any way, skipping", definition);
+                } else {
+                    var readOnlyProperties = beanPropertyMap.get(definition);
+                    if (readOnlyProperties != null) {
+                        log.trace("Delegating to bean properties in order to update {}", definition);
+                        readOnlyProperties.updateBean(readOnlyBean);
+                    } else {
+                        log.warn("Unable to update bean property {} because no bean properties are available", definition);
+                    }
+                }
             }
         });
-    }
-
-    sealed interface PropertyEntry<BEAN, T> {
-        record WritablePropertyEntry<BEAN, T>(
-                WritableProperty<T> property,
-                SerializableFunction<BEAN, T> getter,
-                SerializableBiConsumer<BEAN, T> setter
-        ) implements PropertyEntry<BEAN, T> {
-        }
-
-        record ReadOnlyPropertyEntry<BEAN, T>(
-                WritableProperty<T> property,
-                SerializableFunction<BEAN, T> getter
-        ) implements PropertyEntry<BEAN, T> {
-        }
-
-        WritableProperty<T> property();
-
-        SerializableFunction<BEAN, T> getter();
     }
 
     static class PropertyBackedBeanProperties<BEAN> extends AbstractBeanProperties<BEAN> {
 
         private final Property<BEAN> sourceProperty;
+        private boolean updatingSource = false;
+        @SuppressWarnings("FieldCanBeLocal")
         private final SerializableConsumer<PropertyValueChangeEvent<BEAN>> onSourcePropertyChange = (event) -> {
-
+            if (!updatingSource) {
+                readBean(event.value());
+            }
         };
 
         public PropertyBackedBeanProperties(@Nonnull Class<BEAN> beanType, @Nonnull Property<BEAN> sourceProperty) {
@@ -159,5 +173,25 @@ abstract class AbstractBeanProperties<BEAN> implements BeanProperties<BEAN> {
             this.sourceProperty.addWeakListener(onSourcePropertyChange);
         }
 
+        @Override
+        protected void handlePropertyChangeEventWhenNotReading(@Nonnull PropertyValueChangeEvent<?> event) {
+            updatingSource = true;
+            try {
+                if (sourceProperty instanceof WritableProperty<BEAN> writableProperty) {
+                    var isEmpty = isEmpty();
+                    if (isEmpty) {
+                        writableProperty.clear();
+                    } else if (writableProperty.isPresent()) {
+                        updateBean(writableProperty.value());
+                    } else {
+                        writableProperty.set(createBean());
+                    }
+                } else if (sourceProperty.isPresent()) {
+                    updateBean(sourceProperty.value());
+                }
+            } finally {
+                updatingSource = false;
+            }
+        }
     }
 }
