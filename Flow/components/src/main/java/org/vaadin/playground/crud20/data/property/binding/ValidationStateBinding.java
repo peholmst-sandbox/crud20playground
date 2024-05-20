@@ -4,7 +4,7 @@ import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.Nonnull;
 import org.vaadin.playground.crud20.data.property.Property;
-import org.vaadin.playground.crud20.data.property.ValidationState;
+import org.vaadin.playground.crud20.data.property.validation.ValidationState;
 
 import java.util.Comparator;
 import java.util.List;

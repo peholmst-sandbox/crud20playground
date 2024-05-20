@@ -1,4 +1,4 @@
-package org.vaadin.playground.crud20.data.property;
+package org.vaadin.playground.crud20.data.property.conversion;
 
 import com.vaadin.flow.data.binder.ErrorLevel;
 import com.vaadin.flow.data.binder.ValueContext;
@@ -6,14 +6,19 @@ import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.function.SerializableConsumer;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.vaadin.playground.crud20.data.property.AbstractWritableProperty;
+import org.vaadin.playground.crud20.data.property.Property;
+import org.vaadin.playground.crud20.data.property.PropertyValueChangeEvent;
+import org.vaadin.playground.crud20.data.property.WritableProperty;
+import org.vaadin.playground.crud20.data.property.validation.ValidationState;
 
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
-class DefaultConvertedProperty<T, S> extends AbstractWritableProperty<T> implements ConvertedProperty<T> {
+public class PropertyConverter<T, S> extends AbstractWritableProperty<T> implements ConvertedProperty<T> {
 
-    private final AbstractWritableProperty<S> source;
+    private final WritableProperty<S> source;
     private final Converter<T, S> converter;
     private final WritableProperty<ValidationState> validationState = WritableProperty.create(new ValidationState.Unknown());
     private final T emptyValue;
@@ -21,12 +26,17 @@ class DefaultConvertedProperty<T, S> extends AbstractWritableProperty<T> impleme
     private final SerializableConsumer<PropertyValueChangeEvent<S>> onSourceValueChangeEvent = (event) -> updateLocalValue(event.value(), event.isEmpty());
     private ValueContext valueContext = new ValueContext();
 
-    public DefaultConvertedProperty(@Nonnull AbstractWritableProperty<S> source, @Nonnull Converter<T, S> converter) {
+    public PropertyConverter(@Nonnull WritableProperty<S> source, @Nonnull Converter<T, S> converter) {
         this.source = requireNonNull(source);
         this.converter = requireNonNull(converter);
         this.emptyValue = converter.convertToPresentation(source.emptyValue(), valueContext);
         source.addWeakListener(onSourceValueChangeEvent);
         updateLocalValue(source.value(), source.isEmpty());
+    }
+
+    @Nonnull
+    public static <S, T> ConvertedProperty<T> of(@Nonnull WritableProperty<S> property, @Nonnull Converter<T, S> converter) {
+        return new PropertyConverter<>(property, converter);
     }
 
     private void updateLocalValue(S sourceValue, boolean isEmpty) {

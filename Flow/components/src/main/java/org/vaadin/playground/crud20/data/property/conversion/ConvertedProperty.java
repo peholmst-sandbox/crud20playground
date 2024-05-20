@@ -1,8 +1,10 @@
-package org.vaadin.playground.crud20.data.property;
+package org.vaadin.playground.crud20.data.property.conversion;
 
 import com.vaadin.flow.data.binder.ValueContext;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.vaadin.playground.crud20.data.property.WritableProperty;
+import org.vaadin.playground.crud20.data.property.validation.HasValidationState;
 
 public interface ConvertedProperty<T> extends WritableProperty<T>, HasValidationState {
 

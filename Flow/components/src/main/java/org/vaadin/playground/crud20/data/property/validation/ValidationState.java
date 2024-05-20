@@ -1,4 +1,4 @@
-package org.vaadin.playground.crud20.data.property;
+package org.vaadin.playground.crud20.data.property.validation;
 
 import com.vaadin.flow.data.binder.ErrorLevel;
 import jakarta.annotation.Nonnull;

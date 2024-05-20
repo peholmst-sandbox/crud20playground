@@ -1,11 +1,8 @@
 package org.vaadin.playground.crud20.data.property;
 
-import com.vaadin.flow.data.converter.Converter;
-import jakarta.annotation.Nonnull;
-
 import java.util.Objects;
 
-abstract class AbstractWritableProperty<T> extends AbstractProperty<T> implements WritableProperty<T> {
+public abstract class AbstractWritableProperty<T> extends AbstractProperty<T> implements WritableProperty<T> {
 
     private T value;
 
@@ -14,12 +11,6 @@ abstract class AbstractWritableProperty<T> extends AbstractProperty<T> implement
 
     public AbstractWritableProperty(T initialValue) {
         this.value = initialValue;
-    }
-
-    @Override
-    @Nonnull
-    public <E> ConvertedProperty<E> convert(@Nonnull Converter<E, T> converter) {
-        return new DefaultConvertedProperty<>(this, converter);
     }
 
     protected boolean doSet(T value, boolean force) {

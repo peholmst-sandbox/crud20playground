@@ -5,9 +5,9 @@ import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.Nonnull;
-import org.vaadin.playground.crud20.data.property.HasValidationState;
 import org.vaadin.playground.crud20.data.property.Property;
 import org.vaadin.playground.crud20.data.property.WritableProperty;
+import org.vaadin.playground.crud20.data.property.validation.HasValidationState;
 
 import java.util.List;
 

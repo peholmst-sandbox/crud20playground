@@ -1,13 +1,9 @@
 package org.vaadin.playground.crud20.data.property;
 
-import com.vaadin.flow.data.converter.Converter;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 public interface WritableProperty<T> extends Property<T> {
-
-    @Nonnull
-    <E> ConvertedProperty<E> convert(@Nonnull Converter<E, T> converter);
 
     default void set(T value) {
         set(value, false);

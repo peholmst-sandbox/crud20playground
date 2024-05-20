@@ -6,7 +6,6 @@ import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import org.junit.jupiter.api.Test;
-import org.vaadin.playground.crud20.data.property.ValidationState;
 import org.vaadin.playground.crud20.data.property.WritableProperty;
 
 import static org.assertj.core.api.Assertions.assertThat;

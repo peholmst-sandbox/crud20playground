@@ -5,6 +5,7 @@ import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import org.junit.jupiter.api.Test;
 import org.vaadin.playground.crud20.data.property.WritableProperty;
+import org.vaadin.playground.crud20.data.property.conversion.PropertyConverter;
 import org.vaadin.playground.crud20.data.property.validation.PropertyValidator;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public class BidirectionalTextFieldBindingWithConversionTest {
     @Test
     void initial_successful_state_is_immediately_updated_when_bound() {
         var property = WritableProperty.<Integer>create();
-        var convertedProperty = property.convert(new StringToIntegerConverter("conversion error"));
+        var convertedProperty = PropertyConverter.of(property, new StringToIntegerConverter("conversion error"));
         var textField = new TextField();
         PropertyBinding.bindValueBidirectionally(convertedProperty, textField);
         PropertyBinding.bindValidationState(convertedProperty, textField);
@@ -29,7 +30,7 @@ public class BidirectionalTextFieldBindingWithConversionTest {
     @Test
     void initial_failure_state_is_immediately_updated_when_bound() {
         var property = WritableProperty.<Integer>create();
-        var convertedProperty = property.convert(new StringToIntegerConverter("conversion error"));
+        var convertedProperty = PropertyConverter.of(property, new StringToIntegerConverter("conversion error"));
         var textField = new TextField();
         PropertyBinding.bindValueBidirectionally(convertedProperty, textField);
         textField.setValue("this is not an integer");
@@ -43,7 +44,7 @@ public class BidirectionalTextFieldBindingWithConversionTest {
     @Test
     void text_field_validation_state_is_updated_when_conversion_state_is_updated() {
         var property = WritableProperty.<Integer>create();
-        var convertedProperty = property.convert(new StringToIntegerConverter("conversion error"));
+        var convertedProperty = PropertyConverter.of(property, new StringToIntegerConverter("conversion error"));
         var textField = new TextField();
         PropertyBinding.bindValueBidirectionally(convertedProperty, textField);
         PropertyBinding.bindValidationState(convertedProperty, textField);
@@ -63,7 +64,7 @@ public class BidirectionalTextFieldBindingWithConversionTest {
     @Test
     void binding_can_be_removed() {
         var property = WritableProperty.<Integer>create();
-        var convertedProperty = property.convert(new StringToIntegerConverter("conversion error"));
+        var convertedProperty = PropertyConverter.of(property, new StringToIntegerConverter("conversion error"));
         var textField = new TextField();
         PropertyBinding.bindValueBidirectionally(convertedProperty, textField);
         var binding = PropertyBinding.bindValidationState(convertedProperty, textField);
@@ -79,7 +80,7 @@ public class BidirectionalTextFieldBindingWithConversionTest {
     @Test
     void binding_can_be_disabled_and_enabled() {
         var property = WritableProperty.<Integer>create();
-        var convertedProperty = property.convert(new StringToIntegerConverter("conversion error"));
+        var convertedProperty = PropertyConverter.of(property, new StringToIntegerConverter("conversion error"));
         var textField = new TextField();
         PropertyBinding.bindValueBidirectionally(convertedProperty, textField);
         var binding = PropertyBinding.bindValidationState(convertedProperty, textField);
@@ -101,7 +102,7 @@ public class BidirectionalTextFieldBindingWithConversionTest {
     void conversion_and_validation_can_be_used_together() {
         var property = WritableProperty.<Integer>create();
         var validator = PropertyValidator.of(property).withValidator(new IntegerRangeValidator("validation error", 0, 100));
-        var convertedProperty = property.convert(new StringToIntegerConverter("conversion error"));
+        var convertedProperty = PropertyConverter.of(property, new StringToIntegerConverter("conversion error"));
         var textField = new TextField();
         PropertyBinding.bindValueBidirectionally(convertedProperty, textField);
         PropertyBinding.bindValidationState(List.of(convertedProperty, validator), textField);
