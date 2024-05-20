@@ -6,7 +6,7 @@ import org.vaadin.playground.crud20.data.property.Property;
 import org.vaadin.playground.crud20.data.property.PropertyValueChangeEvent;
 import org.vaadin.playground.crud20.data.property.WritableProperty;
 
-class DefaultBeanPropertySource<BEAN> extends AbstractBeanProperties<BEAN> implements BeanPropertySource<BEAN> {
+final class DefaultBeanPropertySource<BEAN> extends AbstractBeanProperties<BEAN> implements BeanPropertySource<BEAN> {
 
     private final WritableProperty<Boolean> dirty = WritableProperty.create(false);
 

@@ -21,7 +21,7 @@ import java.util.Set;
 @SupportedAnnotationTypes("org.vaadin.playground.crud20.data.property.source.annotation.GeneratePropertyMetadata")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
-public class RecordPropertyMetadataGenerator extends AbstractProcessor {
+public final class RecordPropertyMetadataGenerator extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {

@@ -1,6 +1,6 @@
 package org.vaadin.playground.crud20.data.property;
 
-class DefaultWritableProperty<T> extends AbstractWritableProperty<T> implements WritableProperty<T> {
+final class DefaultWritableProperty<T> extends AbstractWritableProperty<T> implements WritableProperty<T> {
 
     public DefaultWritableProperty() {
         this(null);

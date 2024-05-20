@@ -13,7 +13,7 @@ import java.util.*;
 
 import static java.util.Objects.requireNonNull;
 
-abstract class AbstractProperty<T> implements Property<T> {
+public abstract class AbstractProperty<T> implements Property<T> {
     protected final Logger log = LoggerFactory.getLogger(getClass());
     private final WeakHashMap<SerializableConsumer<PropertyValueChangeEvent<T>>, Void> weakListeners = new WeakHashMap<>();
     private final Set<SerializableConsumer<PropertyValueChangeEvent<T>>> listeners = new HashSet<>();

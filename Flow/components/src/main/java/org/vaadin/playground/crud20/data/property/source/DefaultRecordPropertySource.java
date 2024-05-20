@@ -5,7 +5,7 @@ import org.vaadin.playground.crud20.data.property.Property;
 import org.vaadin.playground.crud20.data.property.PropertyValueChangeEvent;
 import org.vaadin.playground.crud20.data.property.WritableProperty;
 
-class DefaultRecordPropertySource<RECORD extends Record> extends AbstractRecordProperties<RECORD> implements RecordPropertySource<RECORD> {
+final class DefaultRecordPropertySource<RECORD extends Record> extends AbstractRecordProperties<RECORD> implements RecordPropertySource<RECORD> {
 
     private final WritableProperty<Boolean> dirty = WritableProperty.create(false);
 
