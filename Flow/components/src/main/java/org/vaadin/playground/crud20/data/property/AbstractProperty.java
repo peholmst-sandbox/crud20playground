@@ -3,7 +3,6 @@ package org.vaadin.playground.crud20.data.property;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.SerializablePredicate;
-import com.vaadin.flow.function.SerializableRunnable;
 import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -101,67 +100,5 @@ abstract class AbstractProperty<T> implements Property<T> {
         } catch (Exception ex) {
             log.error("Error in listener", ex);
         }
-    }
-
-    @Override
-    public void doIfPresent(@Nonnull SerializableConsumer<T> action) {
-        if (isPresent()) {
-            log.trace("Invoking action {}", action);
-            action.accept(value());
-        }
-    }
-
-    @Override
-    public void doIfPresentOrElse(@Nonnull SerializableConsumer<T> action, @Nonnull SerializableRunnable emptyAction) {
-        if (isPresent()) {
-            log.trace("Invoking action {}", action);
-            action.accept(value());
-        } else {
-            log.trace("Invoking empty action {}", emptyAction);
-            emptyAction.run();
-        }
-    }
-
-    @Override
-    @Nonnull
-    public Registration triggerIfPresent(@Nonnull SerializableConsumer<T> action) {
-        return triggerIfPresent(action, true);
-    }
-
-    @Override
-    @Nonnull
-    public Registration triggerIfPresent(@Nonnull SerializableConsumer<T> action, boolean initialTrigger) {
-        if (initialTrigger) {
-            doIfPresent(action);
-        }
-        return addListener(event -> {
-            if (event.isPresent()) {
-                log.trace("Invoking action {} in response to event {}", action, event);
-                action.accept(event.value());
-            }
-        });
-    }
-
-    @Override
-    @Nonnull
-    public Registration triggerIfPresentOrElse(@Nonnull SerializableConsumer<T> action, @Nonnull SerializableRunnable emptyAction) {
-        return triggerIfPresentOrElse(action, emptyAction, true);
-    }
-
-    @Override
-    @Nonnull
-    public Registration triggerIfPresentOrElse(@Nonnull SerializableConsumer<T> action, @Nonnull SerializableRunnable emptyAction, boolean initialTrigger) {
-        if (initialTrigger) {
-            doIfPresentOrElse(action, emptyAction);
-        }
-        return addListener(event -> {
-            if (event.isPresent()) {
-                log.trace("Invoking action {} in response to event {}", action, event);
-                action.accept(event.value());
-            } else {
-                log.trace("Invoking empty action {} in response to event {}", emptyAction, event);
-                emptyAction.run();
-            }
-        });
     }
 }

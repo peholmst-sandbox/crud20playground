@@ -3,7 +3,6 @@ package org.vaadin.playground.crud20.data.property;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.SerializablePredicate;
-import com.vaadin.flow.function.SerializableRunnable;
 import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -43,20 +42,4 @@ public interface Property<T> extends Serializable {
     Registration addListener(@Nonnull SerializableConsumer<PropertyValueChangeEvent<T>> listener);
 
     void addWeakListener(@Nonnull SerializableConsumer<PropertyValueChangeEvent<T>> listener);
-
-    void doIfPresent(@Nonnull SerializableConsumer<T> action);
-
-    void doIfPresentOrElse(@Nonnull SerializableConsumer<T> action, @Nonnull SerializableRunnable emptyAction);
-
-    @Nonnull
-    Registration triggerIfPresent(@Nonnull SerializableConsumer<T> action);
-
-    @Nonnull
-    Registration triggerIfPresent(@Nonnull SerializableConsumer<T> action, boolean initialTrigger);
-
-    @Nonnull
-    Registration triggerIfPresentOrElse(@Nonnull SerializableConsumer<T> action, @Nonnull SerializableRunnable emptyAction);
-
-    @Nonnull
-    Registration triggerIfPresentOrElse(@Nonnull SerializableConsumer<T> action, @Nonnull SerializableRunnable emptyAction, boolean initialTrigger);
 }

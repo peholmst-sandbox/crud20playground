@@ -24,6 +24,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 import org.vaadin.playground.crud20.components.*;
 import org.vaadin.playground.crud20.data.property.Property;
+import org.vaadin.playground.crud20.data.property.action.TriggerUtils;
 import org.vaadin.playground.crud20.demo.sampledata.Employee;
 import org.vaadin.playground.crud20.demo.sampledata.EmployeeId;
 
@@ -72,8 +73,8 @@ class EmployeeDetails extends ContentContainer {
         footerToolbar.addToStart(edit, share, delete);
         setFooter(footerToolbar);
 
-        registerOnAttach(this, () -> selectedTab.triggerIfPresentOrElse(tabContainer::switchTo, () -> tabContainer.switchTo(EmployeesView.Tab.personal)));
-        registerOnAttach(this, () -> selectedTab.triggerIfPresentOrElse(tabs::switchTo, () -> tabs.switchTo(EmployeesView.Tab.personal)));
+        registerOnAttach(this, () -> TriggerUtils.addTriggerWhenPresentOrElse(selectedTab, tabContainer::switchTo, () -> tabContainer.switchTo(EmployeesView.Tab.personal)));
+        registerOnAttach(this, () -> TriggerUtils.addTriggerWhenPresentOrElse(selectedTab, tabs::switchTo, () -> tabs.switchTo(EmployeesView.Tab.personal)));
     }
 
     private Tab createTab(String text, EmployeesView.Tab tab) {

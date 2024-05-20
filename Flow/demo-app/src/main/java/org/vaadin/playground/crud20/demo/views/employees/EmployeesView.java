@@ -15,6 +15,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.Nonnull;
 import org.vaadin.playground.crud20.components.*;
 import org.vaadin.playground.crud20.data.property.WritableProperty;
+import org.vaadin.playground.crud20.data.property.action.TriggerUtils;
 import org.vaadin.playground.crud20.demo.sampledata.Employee;
 import org.vaadin.playground.crud20.demo.sampledata.EmployeeId;
 import org.vaadin.playground.crud20.demo.sampledata.EmployeeService;
@@ -101,7 +102,7 @@ public class EmployeesView extends MasterDetailLayout implements BeforeEnterObse
         master.addContent(employeesList);
         master.setWidth("300px");
         setMaster(master);
-        selectedEmployee.mapOptional(employeeService::findById).triggerIfPresentOrElse(this::showEmployee, this::showNoSelection);
+        TriggerUtils.addTriggerWhenPresentOrElse(selectedEmployee.mapOptional(employeeService::findById), this::showEmployee, this::showNoSelection); // TODO Is there a need to save this registration somewhere to prevent premature GC?
     }
 
     private void showEmployee(@Nonnull Employee employee) {
