@@ -11,6 +11,17 @@ public final class TriggerUtils {
     private TriggerUtils() {
     }
 
+    public static <T> @Nonnull Registration addTrigger(@Nonnull Property<T> property, @Nonnull SerializableConsumer<T> trigger) {
+        return addTrigger(property, trigger, true);
+    }
+
+    public static <T> @Nonnull Registration addTrigger(@Nonnull Property<T> property, @Nonnull SerializableConsumer<T> trigger, boolean triggerNow) {
+        if (triggerNow) {
+            trigger.accept(property.value());
+        }
+        return property.addListener(event -> trigger.accept(event.value()));
+    }
+
     public static <T> @Nonnull Registration addTriggerWhenPresent(@Nonnull Property<T> property, @Nonnull SerializableConsumer<T> trigger) {
         return addTriggerWhenPresent(property, trigger, true);
     }
