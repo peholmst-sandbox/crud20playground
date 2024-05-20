@@ -66,32 +66,4 @@ public class WritablePropertyTest {
         property.set("1234");
         assertThat(filtered.value()).isEqualTo("1234");
     }
-
-    @Test
-    void can_have_custom_empty_value() {
-        var property = WritableProperty.createWithEmptyValue("initial value", "empty");
-        assertThat(property.isPresent()).isTrue();
-        property.clear();
-        assertThat(property.isEmpty()).isTrue();
-        assertThat(property.value()).isEqualTo("empty");
-    }
-
-    @Test
-    void custom_empty_values_work_with_filtering() {
-        var property = WritableProperty.createWithEmptyValue("123", "empty");
-        var filtered = property.filter(s -> s.length() > 2);
-        assertThat(filtered.value()).isEqualTo("123");
-        property.set("12");
-        assertThat(filtered.isEmpty()).isTrue();
-        assertThat(filtered.value()).isEqualTo("empty");
-    }
-
-    @Test
-    void custom_empty_values_work_with_mapping() {
-        var property = WritableProperty.createWithEmptyValue("123", "");
-        var mapped = property.map(Integer::parseInt, -1);
-        assertThat(mapped.value()).isEqualTo(123);
-        property.clear();
-        assertThat(mapped.value()).isEqualTo(-1);
-    }
 }

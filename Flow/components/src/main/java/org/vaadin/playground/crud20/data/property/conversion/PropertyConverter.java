@@ -21,17 +21,15 @@ public class PropertyConverter<T, S> extends AbstractWritableProperty<T> impleme
     private final WritableProperty<S> source;
     private final Converter<T, S> converter;
     private final WritableProperty<ValidationState> validationState = WritableProperty.create(new ValidationState.Unknown());
-    private final T emptyValue;
     @SuppressWarnings("FieldCanBeLocal") // If used as a local field, the weak listener will be GC:d too early
-    private final SerializableConsumer<PropertyValueChangeEvent<S>> onSourceValueChangeEvent = (event) -> updateLocalValue(event.value(), event.isEmpty());
+    private final SerializableConsumer<PropertyValueChangeEvent<S>> onSourceValueChangeEvent = (event) -> updateLocalValue(event.value());
     private ValueContext valueContext = new ValueContext();
 
     public PropertyConverter(@Nonnull WritableProperty<S> source, @Nonnull Converter<T, S> converter) {
         this.source = requireNonNull(source);
         this.converter = requireNonNull(converter);
-        this.emptyValue = converter.convertToPresentation(source.emptyValue(), valueContext);
         source.addWeakListener(onSourceValueChangeEvent);
-        updateLocalValue(source.value(), source.isEmpty());
+        updateLocalValue(source.value());
     }
 
     @Nonnull
@@ -39,12 +37,8 @@ public class PropertyConverter<T, S> extends AbstractWritableProperty<T> impleme
         return new PropertyConverter<>(property, converter);
     }
 
-    private void updateLocalValue(S sourceValue, boolean isEmpty) {
-        if (isEmpty) {
-            doSet(emptyValue, false);
-        } else {
-            doSet(converter.convertToPresentation(sourceValue, valueContext), false);
-        }
+    private void updateLocalValue(S sourceValue) {
+        doSet(converter.convertToPresentation(sourceValue, valueContext), false);
         validationState.set(new ValidationState.Success());
     }
 
@@ -53,12 +47,6 @@ public class PropertyConverter<T, S> extends AbstractWritableProperty<T> impleme
     public ConvertedProperty<T> withValueContext(@Nullable ValueContext valueContext) {
         this.valueContext = Objects.requireNonNullElseGet(valueContext, ValueContext::new);
         return this;
-    }
-
-    @Nullable
-    @Override
-    public T emptyValue() {
-        return emptyValue;
     }
 
     @Override

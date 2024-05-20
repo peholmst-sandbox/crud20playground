@@ -10,14 +10,12 @@ import static java.util.Objects.requireNonNull;
 final class DerivedProperty<T, S> extends AbstractProperty<T> {
 
     private final SerializableFunction<S, T> mapper;
-    private final T emptyValue;
     @SuppressWarnings("FieldCanBeLocal") // If used as a local field, the weak listener will be GC:d too early
     private final SerializableConsumer<PropertyValueChangeEvent<S>> onSourceValueChangeEvent = (event) -> updateCachedValue(event.value(), event.isEmpty());
     private T cachedValue;
 
-    public DerivedProperty(@Nonnull AbstractProperty<S> source, @Nonnull SerializableFunction<S, T> mapper, @Nullable T emptyValue) {
+    public DerivedProperty(@Nonnull AbstractProperty<S> source, @Nonnull SerializableFunction<S, T> mapper) {
         this.mapper = requireNonNull(mapper);
-        this.emptyValue = emptyValue;
         source.addWeakListener(onSourceValueChangeEvent);
         updateCachedValue(source.value(), source.isEmpty());
     }
@@ -25,19 +23,13 @@ final class DerivedProperty<T, S> extends AbstractProperty<T> {
     private void updateCachedValue(@Nullable S sourceValue, boolean isEmpty) {
         var old = cachedValue;
         if (isEmpty) {
-            cachedValue = emptyValue();
-            log.trace("Updating cached value to empty value [{}]", cachedValue);
+            cachedValue = null;
+            log.trace("Updating cached value to null");
         } else {
             cachedValue = mapper.apply(sourceValue);
             log.trace("Updating cached value to [{}]", cachedValue);
         }
         notifyListeners(new PropertyValueChangeEvent<>(this, old, cachedValue));
-    }
-
-    @Nullable
-    @Override
-    public T emptyValue() {
-        return emptyValue;
     }
 
     @Nullable

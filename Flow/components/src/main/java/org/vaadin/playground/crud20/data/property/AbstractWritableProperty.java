@@ -27,7 +27,7 @@ public abstract class AbstractWritableProperty<T> extends AbstractProperty<T> im
 
     @Override
     public void clear() {
-        set(emptyValue());
+        set(null);
     }
 
     @Override

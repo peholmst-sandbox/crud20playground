@@ -14,8 +14,7 @@ public interface Property<T> extends Serializable {
 
     T value();
 
-    @Nullable
-    T emptyValue();
+    T valueOrDefault(@Nullable T defaultValue);
 
     boolean contains(@Nullable T value);
 
@@ -27,13 +26,7 @@ public interface Property<T> extends Serializable {
     <E> Property<E> map(@Nonnull SerializableFunction<T, E> mapper);
 
     @Nonnull
-    <E> Property<E> map(@Nonnull SerializableFunction<T, E> mapper, @Nullable E emptyValue);
-
-    @Nonnull
     <E> Property<E> mapOptional(@Nonnull SerializableFunction<T, Optional<E>> mapper);
-
-    @Nonnull
-    <E> Property<E> mapOptional(@Nonnull SerializableFunction<T, Optional<E>> mapper, @Nullable E emptyValue);
 
     @Nonnull
     Property<T> filter(@Nonnull SerializablePredicate<T> predicate);

@@ -38,7 +38,7 @@ public class LocalDateTimeForkJoinBinding extends ForkJoinBinding<LocalDateTime>
     @Override
     protected JoinState attemptJoin(@Nonnull Property<LocalDateTime> joinProperty) {
         if (timeProperty.isEmpty() && dateProperty.isEmpty()) {
-            return new JoinState.Complete<>(joinProperty.emptyValue());
+            return new JoinState.Complete<>(null);
         }
         var time = timeProperty.value();
         var date = dateProperty.value();

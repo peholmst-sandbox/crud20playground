@@ -22,8 +22,9 @@ abstract class AbstractProperty<T> implements Property<T> {
     public abstract T value();
 
     @Override
-    @Nullable
-    public abstract T emptyValue();
+    public T valueOrDefault(@Nullable T defaultValue) {
+        return isPresent() ? value() : defaultValue;
+    }
 
     @Override
     public boolean contains(@Nullable T value) {
@@ -32,42 +33,30 @@ abstract class AbstractProperty<T> implements Property<T> {
 
     @Override
     public boolean isEmpty() {
-        return contains(emptyValue());
+        return value() == null;
     }
 
     @Override
     public boolean isPresent() {
-        return !isEmpty();
+        return value() != null;
     }
 
     @Override
     @Nonnull
     public <E> Property<E> map(@Nonnull SerializableFunction<T, E> mapper) {
-        return map(mapper, null);
-    }
-
-    @Override
-    @Nonnull
-    public <E> Property<E> map(@Nonnull SerializableFunction<T, E> mapper, @Nullable E emptyValue) {
-        return new DerivedProperty<>(this, mapper, emptyValue);
+        return new DerivedProperty<>(this, mapper);
     }
 
     @Override
     @Nonnull
     public <E> Property<E> mapOptional(@Nonnull SerializableFunction<T, Optional<E>> mapper) {
-        return mapOptional(mapper, null);
-    }
-
-    @Override
-    @Nonnull
-    public <E> Property<E> mapOptional(@Nonnull SerializableFunction<T, Optional<E>> mapper, @Nullable E emptyValue) {
-        return new DerivedProperty<>(this, value -> mapper.apply(value).orElse(emptyValue), emptyValue);
+        return new DerivedProperty<>(this, value -> mapper.apply(value).orElse(null));
     }
 
     @Override
     @Nonnull
     public Property<T> filter(@Nonnull SerializablePredicate<T> predicate) {
-        return new DerivedProperty<>(this, value -> predicate.test(value) ? value : emptyValue(), emptyValue());
+        return new DerivedProperty<>(this, value -> predicate.test(value) ? value : null);
     }
 
     @Override

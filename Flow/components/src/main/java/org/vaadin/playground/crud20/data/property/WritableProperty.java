@@ -1,7 +1,6 @@
 package org.vaadin.playground.crud20.data.property;
 
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 
 public interface WritableProperty<T> extends Property<T> {
 
@@ -18,16 +17,6 @@ public interface WritableProperty<T> extends Property<T> {
     }
 
     static <T> @Nonnull WritableProperty<T> create(T initialValue) {
-        return new DefaultWritableProperty<>(initialValue, null);
-    }
-
-    // TODO createWithEmptyValue needs a better name. Now you'd think it creates a new, empty property.
-
-    static <T> @Nonnull WritableProperty<T> createWithEmptyValue(@Nullable T emptyValue) {
-        return new DefaultWritableProperty<>(emptyValue, emptyValue);
-    }
-
-    static <T> @Nonnull WritableProperty<T> createWithEmptyValue(T initialValue, @Nullable T emptyValue) {
-        return new DefaultWritableProperty<>(initialValue, emptyValue);
+        return new DefaultWritableProperty<>(initialValue);
     }
 }
