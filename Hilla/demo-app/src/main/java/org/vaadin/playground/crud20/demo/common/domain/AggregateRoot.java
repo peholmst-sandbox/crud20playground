@@ -1,4 +1,4 @@
-package org.vaadin.playground.crud20.demo.common.domain.model;
+package org.vaadin.playground.crud20.demo.common.domain;
 
 /**
  * Interface to be implemented by entities that also act as aggregate roots.
