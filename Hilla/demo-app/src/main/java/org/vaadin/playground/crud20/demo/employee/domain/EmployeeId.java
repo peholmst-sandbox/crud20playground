@@ -1,4 +1,4 @@
-package org.vaadin.playground.crud20.demo.employee.domain.primitives;
+package org.vaadin.playground.crud20.demo.employee.domain;
 
 import net.pkhapps.commons.domain.primitives.AbstractLongId;
 import org.jetbrains.annotations.NotNull;

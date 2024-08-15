@@ -1,4 +1,4 @@
-package org.vaadin.playground.crud20.demo.employee.domain.model;
+package org.vaadin.playground.crud20.demo.employee.domain;
 
 import io.soabase.recordbuilder.core.RecordBuilder;
 import net.pkhapps.commons.domain.primitives.EmailAddress;
@@ -6,9 +6,8 @@ import net.pkhapps.commons.domain.primitives.NanoId;
 import net.pkhapps.commons.domain.primitives.PhoneNumber;
 import net.pkhapps.commons.domain.primitives.geo.Address;
 import org.jetbrains.annotations.NotNull;
-import org.vaadin.playground.crud20.demo.common.domain.model.AggregateRoot;
-import org.vaadin.playground.crud20.demo.common.domain.model.HasPublicId;
-import org.vaadin.playground.crud20.demo.employee.domain.primitives.EmployeeId;
+import org.vaadin.playground.crud20.demo.common.domain.AggregateRoot;
+import org.vaadin.playground.crud20.demo.common.domain.HasPublicId;
 import org.vaadin.playground.crud20.demo.jooq.enums.Gender;
 
 import java.time.LocalDate;
@@ -19,8 +18,8 @@ import static org.apache.commons.lang3.Validate.notBlank;
 @RecordBuilder
 public record Employee(
         EmployeeId id,
-        NanoId publicId,
         long optimisticLockingVersion,
+        NanoId publicId,
         @NotNull String firstName,
         String middleName,
         @NotNull String lastName,
@@ -46,8 +45,8 @@ public record Employee(
     public static final int PREFERRED_NAME_MAX_WIDTH = 100;
 
     public Employee(EmployeeId id,
-                    NanoId publicId,
                     long optimisticLockingVersion,
+                    NanoId publicId,
                     @NotNull String firstName,
                     String middleName,
                     @NotNull String lastName,
